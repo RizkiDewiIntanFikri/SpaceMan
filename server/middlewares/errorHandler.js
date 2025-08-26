@@ -1,5 +1,5 @@
 const errorHandler = (err, req, res, next) => {
-    console.log("ERROR IN HANDLER ===> ",err);
+    console.log("ERROR IN HANDLER ===> ", err);
     let code = 500
     let message = "Internal Server Error"
 
@@ -18,6 +18,9 @@ const errorHandler = (err, req, res, next) => {
     } else if (err.message === "ALPHA_VANTAGE_API_ERROR") {
         code = 503 // Service Unavailable
         message = "Could not connect to the market data provider"
+    } else if (err.message === "UNAUTHORIZED") {
+        code = 403
+        message = "You are unauthorized to do that"
     }
     res.status(code).json({ error: message })
 }
