@@ -11,7 +11,7 @@ class PortfolioService {
                 model: Portfolio,
                 include: {
                     model: Holding,
-                    as: 'holdings', // This 'as' must match the alias in your Portfolio model association
+                    as: 'Holdings', // This 'as' must match the alias in your Portfolio model association
                     attributes: ['quantity', 'avgPrice'],
                     include: {
                         model: Stock,
@@ -33,7 +33,7 @@ class PortfolioService {
             cashBalance: user.cashBalance,
             holdingsValue: 0,
             totalValue: user.portfolioValue,
-            holdings: user.Portfolio.holdings.map(holding => {
+            Holdings: user.Portfolio.Holdings.map(holding => {
                 const marketValue = holding.quantity * holding.Stock.price;
                 return {
                     symbol: holding.Stock.symbol,
@@ -46,8 +46,8 @@ class PortfolioService {
             })
         };
 
-        // Calculate the total value of all stock holdings
-        formattedPortfolio.holdingsValue = formattedPortfolio.holdings.reduce((total, holding) => total + holding.marketValue, 0);
+        // Calculate the total value of all stock Holdings
+        formattedPortfolio.holdingsValue = formattedPortfolio.Holdings.reduce((total, holding) => total + holding.marketValue, 0);
 
         return formattedPortfolio;
     }
