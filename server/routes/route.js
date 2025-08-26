@@ -1,8 +1,9 @@
 const express = require("express")
+const { UserController } = require("../controllers/userController")
+const { StockController } = require("../controllers/stockController")
 const route = express.Router()
 
-route.get("/", (req, res) => {
-    res.send("Hello World")
-})
+route.post("/register", UserController.register)
+route.get("/stocks/:symbol", StockController.getStockQuote)
 
 module.exports = route
