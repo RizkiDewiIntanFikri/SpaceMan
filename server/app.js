@@ -19,6 +19,14 @@ app.use(express.urlencoded({ extended: true }))
 app.use(route)
 app.use(errorHandler)
 
+io.on('connection', (socket) => {
+    console.log('A user connected:', socket.id);
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
+});
+
 server.listen(PORT, () => {
     console.log(`Server is running on port http://localhost:${PORT}`)
 })
