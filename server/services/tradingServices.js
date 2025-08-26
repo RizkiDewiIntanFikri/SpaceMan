@@ -46,7 +46,7 @@ class TradingServices {
                 }
 
                 // Update user's cash
-                user.cashBalance -= totalCost;
+                user.cashBalance = parseFloat(user.cashBalance) - totalCost;
                 await user.save({ transaction: t });
 
                 // Find or create the holding for this stock
@@ -78,7 +78,7 @@ class TradingServices {
                 }
 
                 // Update user's cash
-                user.cashBalance += totalCost;
+                user.cashBalance = parseFloat(user.cashBalance) + totalCost;
                 await user.save({ transaction: t });
 
                 // Decrease holding quantity or delete if all shares are sold
