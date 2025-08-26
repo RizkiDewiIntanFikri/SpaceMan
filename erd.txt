@@ -1,0 +1,55 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+// BUAT LIAT ERD COPAS DI https://dbdiagram.io/d
+
+Table USER {
+  id string [pk, unique, note: 'Unique user identifier']
+  username varchar [not null]
+  cashBalance decimal(15, 2) [default: 100000.00, not null]
+  portfolioValue decimal(15, 2) [default: 100000.00, not null]
+  createdAt timestamp [default: `now()`, not null]
+}
+
+Table PORTFOLIO {
+  id integer [pk, increment]
+  userId string [unique, not null]
+  totalValue decimal(15, 2) [not null]
+  updatedAt timestamp
+}
+
+Table HOLDING {
+  id integer [pk, increment]
+  portfolioId integer [not null]
+  symbol varchar [not null]
+  quantity integer [not null]
+  avgPrice decimal(10, 2) [not null]
+
+  indexes {
+    (portfolioId, symbol) [unique]
+  }
+}
+
+Table TRADE {
+  id string [pk, unique, note: 'Unique trade identifier']
+  userId string [not null]
+  symbol varchar [not null]
+  type varchar [note: 'Can be BUY or SELL']
+  quantity integer [not null]
+  price decimal(10, 2) [not null]
+  timestamp timestamp [default: `now()`, not null]
+}
+
+Table STOCK {
+  symbol varchar [pk, unique, note: 'Stock ticker symbol, e.g., AAPL']
+  name varchar [not null]
+  price decimal(10, 2)
+  lastUpdated timestamp
+}
+
+// --- Relationships ---
+
+Ref: PORTFOLIO.userId > USER.id // one-to-one
+Ref: TRADE.userId > USER.id // many-to-one
+Ref: HOLDING.portfolioId > PORTFOLIO.id // many-to-one
+Ref: HOLDING.symbol > STOCK.symbol // many-to-one
+Ref: TRADE.symbol > STOCK.symbol // many-to-one
