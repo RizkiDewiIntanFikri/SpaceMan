@@ -1,30 +1,33 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Stock extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // A Stock can be part of many different Holdings across all users.
+      Stock.hasMany(models.Holding, {
+        foreignKey: 'symbol',
+        sourceKey: 'symbol'
+      });
+      // A Stock can be involved in many different Trades.
+      Stock.hasMany(models.Trade, {
+        foreignKey: 'symbol',
+        sourceKey: 'symbol'
+      });
     }
   }
   Stock.init({
-    symbol: DataTypes.STRING,
+    symbol: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+      allowNull: false
+    },
     name: DataTypes.STRING,
-    price: DataTypes.DECIMAL,
-    change: DataTypes.DECIMAL,
-    changePct: DataTypes.DECIMAL,
+    price: DataTypes.DECIMAL(10, 2),
+    change: DataTypes.DECIMAL(10, 2),
+    changePct: DataTypes.DECIMAL(10, 4),
     volume: DataTypes.BIGINT,
     marketCap: DataTypes.BIGINT,
     lastUpdated: DataTypes.DATE
-  }, {
-    sequelize,
-    modelName: 'Stock',
-  });
+  }, { sequelize, modelName: 'Stock', timestamps: false }); // Stock data doesn't need createdAt/updatedAt
   return Stock;
 };

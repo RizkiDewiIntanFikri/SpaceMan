@@ -1,26 +1,37 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Holding extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // A Holding belongs to one Portfolio.
+      Holding.belongsTo(models.Portfolio, {
+        foreignKey: 'portfolioId'
+      });
+      // A Holding refers to one Stock.
+      Holding.belongsTo(models.Stock, {
+        foreignKey: 'symbol',
+        targetKey: 'symbol'
+      });
     }
   }
   Holding.init({
-    portfolioId: DataTypes.INTEGER,
-    symbol: DataTypes.STRING,
-    quantity: DataTypes.INTEGER,
-    avgPrice: DataTypes.DECIMAL
-  }, {
-    sequelize,
-    modelName: 'Holding',
-  });
+    // id is created automatically
+    portfolioId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    symbol: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    avgPrice: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false
+    }
+  }, { sequelize, modelName: 'Holding' });
   return Holding;
 };
