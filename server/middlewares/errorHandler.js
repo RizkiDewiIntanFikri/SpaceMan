@@ -16,11 +16,23 @@ const errorHandler = (err, req, res, next) => {
         code = 404
         message = "Stock symbol not found"
     } else if (err.message === "ALPHA_VANTAGE_API_ERROR") {
-        code = 503 // Service Unavailable
+        code = 503
         message = "Could not connect to the market data provider"
     } else if (err.message === "UNAUTHORIZED") {
         code = 403
         message = "You are unauthorized to do that"
+    } else if (err.message === "INSUFFICIENT_FUNDS") {
+        code = 400;
+        message = "Insufficient funds to execute this trade.";
+    } else if (err.message === "INSUFFICIENT_SHARES") {
+        code = 400;
+        message = "You do not own enough shares to sell.";
+    } else if (err.message === "INVALID_TRADE_TYPE") {
+        code = 400;
+        message = "Invalid trade type. Must be 'BUY' or 'SELL'.";
+    } else if (err.message === "MISSING_TRADE_DETAILS") {
+        code = 400;
+        message = "Missing required trade details (symbol, quantity, type).";
     }
     res.status(code).json({ error: message })
 }
