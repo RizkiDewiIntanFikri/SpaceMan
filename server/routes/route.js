@@ -6,9 +6,10 @@ const { TradingController } = require("../controllers/tradingController")
 const { PortfolioController } = require("../controllers/portfolioController")
 const route = express.Router()
 
+route.get('/trades', auth, TradingController.getHistory);
+route.post('/trades', auth, TradingController.placeOrder);
 route.get('/portfolio', auth, PortfolioController.getPortfolio);
 route.post("/register", UserController.register)
 route.get("/stocks/:symbol", auth, StockController.getStockQuote)
-route.post('/trades', auth, TradingController.placeOrder);
 
 module.exports = route

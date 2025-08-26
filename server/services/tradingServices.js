@@ -114,6 +114,18 @@ class TradingServices {
             throw error;
         }
     }
+
+    static async getTradeHistory(userId) {
+        const trades = await Trade.findAll({
+            where: { userId: userId },
+            // Order by the most recent trades first
+            order: [['timestamp', 'DESC']],
+            // We don't need the full user or stock object, just the symbol
+            attributes: ['id', 'symbol', 'type', 'quantity', 'price', 'total', 'timestamp']
+        });
+
+        return trades;
+    }
 }
 
 module.exports = { TradingServices }

@@ -33,6 +33,9 @@ const errorHandler = (err, req, res, next) => {
     } else if (err.message === "MISSING_TRADE_DETAILS") {
         code = 400;
         message = "Missing required trade details (symbol, quantity, type).";
+    } else if (err.message === "PORTFOLIO_NOT_FOUND") {
+        code = 404;
+        message = "Could not find a portfolio for this user.";
     }
     res.status(code).json({ error: message })
 }

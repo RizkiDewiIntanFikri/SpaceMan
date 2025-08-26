@@ -1,4 +1,4 @@
-const {TradingServices} = require('../services/tradingServices');
+const { TradingServices } = require('../services/tradingServices');
 
 class TradingController {
     static async placeOrder(req, res, next) {
@@ -26,6 +26,15 @@ class TradingController {
                 trade: executedTrade
             });
 
+        } catch (error) {
+            next(error);
+        }
+    }
+    static async getHistory(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const history = await TradingServices.getTradeHistory(userId);
+            res.status(200).json(history);
         } catch (error) {
             next(error);
         }
