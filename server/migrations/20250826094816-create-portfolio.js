@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Users', // This MUST match the table name
+          model: 'Users',
           key: 'id'
         },
         onDelete: 'CASCADE'
