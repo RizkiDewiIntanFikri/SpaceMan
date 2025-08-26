@@ -1,0 +1,100 @@
+const { User, Portfolio, Holding, Trade, Stock, sequelize } = require('../models');
+const MarketDataService = require('./marketDataService');
+
+class TradingServices {
+    static async exectureTrade() {
+        const t = await sequelize.transaction()
+        try {
+            // 1. Fetch current market price for the stock
+            const stockQuote = await MarketDataService.fetchStockQuote(symbol);
+            if (!stockQuote) {
+                throw new Error("STOCK_NOT_FOUND");
+            }
+            const currentPrice = stockQuote.price;
+            const totalCost = quantity * currentPrice;
+
+            // 2. Get the user and their portfolio, and lock the rows for this transaction
+            // to prevent race conditions (e.g., user trying to place two trades at once).
+            const user = await User.findByPk(userId, { transaction: t, lock: t.LOCK.UPDATE });
+            const portfolio = await Portfolio.findOne({ where: { userId: user.id }, transaction: t });
+
+            let tradeRecord;
+
+            if (type.toUpperCase() === 'BUY') {
+                // --- BUY LOGIC ---
+                if (user.cashBalance < totalCost) {
+                    throw new Error("INSUFFICIENT_FUNDS");
+                }
+
+                // Update user's cash
+                user.cashBalance -= totalCost;
+                await user.save({ transaction: t });
+
+                // Find or create the holding for this stock
+                let holding = await Holding.findOne({ where: { portfolioId: portfolio.id, symbol: symbol }, transaction: t });
+
+                if (holding) {
+                    // Update existing holding: recalculate average price
+                    const existingValue = holding.quantity * holding.avgPrice;
+                    const newValue = quantity * currentPrice;
+                    holding.avgPrice = (existingValue + newValue) / (holding.quantity + quantity);
+                    holding.quantity += quantity;
+                    await holding.save({ transaction: t });
+                } else {
+                    // Create new holding
+                    await Holding.create({
+                        portfolioId: portfolio.id,
+                        symbol: symbol,
+                        quantity: quantity,
+                        avgPrice: currentPrice
+                    }, { transaction: t });
+                }
+
+            } else if (type.toUpperCase() === 'SELL') {
+                // --- SELL LOGIC ---
+                const holding = await Holding.findOne({ where: { portfolioId: portfolio.id, symbol: symbol }, transaction: t });
+
+                if (!holding || holding.quantity < quantity) {
+                    throw new Error("INSUFFICIENT_SHARES");
+                }
+
+                // Update user's cash
+                user.cashBalance += totalCost;
+                await user.save({ transaction: t });
+
+                // Decrease holding quantity or delete if all shares are sold
+                holding.quantity -= quantity;
+                if (holding.quantity === 0) {
+                    await holding.destroy({ transaction: t });
+                } else {
+                    await holding.save({ transaction: t });
+                }
+
+            } else {
+                throw new Error("INVALID_TRADE_TYPE");
+            }
+
+            // 3. Create a record of the trade
+            tradeRecord = await Trade.create({
+                userId,
+                symbol,
+                type: type.toUpperCase(),
+                quantity,
+                price: currentPrice,
+                total: totalCost
+            }, { transaction: t });
+
+            // 4. If all steps succeed, commit the transaction
+            await t.commit();
+            return tradeRecord;
+
+        } catch (error) {
+            // If any step fails, roll back all database changes
+            await t.rollback();
+            // Re-throw the error to be handled by the controller and errorHandler
+            throw error;
+        }
+    }
+}
+
+module.exports = { TradingServices }
