@@ -1,8 +1,8 @@
 const { User, Portfolio, Holding, Trade, Stock, sequelize } = require('../models');
-const MarketDataService = require('./marketDataService');
+const { MarketDataService } = require('../services/marketData');
 
 class TradingServices {
-    static async exectureTrade() {
+    static async executeTrade({ userId, symbol, quantity, type }) {
         const t = await sequelize.transaction()
         try {
             // 1. Fetch current market price for the stock
@@ -12,6 +12,25 @@ class TradingServices {
             }
             const currentPrice = stockQuote.price;
             const totalCost = quantity * currentPrice;
+
+            const [stock, created] = await Stock.findOrCreate({
+                where: { symbol: stockQuote.symbol },
+                defaults: {
+                    symbol: stockQuote.symbol,
+                    name: "Loading...", // Use a temporary name
+                    price: stockQuote.price
+                },
+                transaction: t
+            });
+
+            // If a new stock record was just created, fetch its real name.
+            if (created) {
+                const companyName = await MarketDataService.fetchStockName(stock.symbol);
+                if (companyName) {
+                    stock.name = companyName;
+                    await stock.save({ transaction: t }); // Save the updated name
+                }
+            }
 
             // 2. Get the user and their portfolio, and lock the rows for this transaction
             // to prevent race conditions (e.g., user trying to place two trades at once).

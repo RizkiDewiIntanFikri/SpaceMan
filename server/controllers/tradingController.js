@@ -1,4 +1,4 @@
-const TradingService = require('../services/tradingService');
+const {TradingServices} = require('../services/tradingServices');
 
 class TradingController {
     static async placeOrder(req, res, next) {
@@ -19,7 +19,7 @@ class TradingController {
                 type: type.toUpperCase()
             };
 
-            const executedTrade = await TradingService.executeTrade(tradeDetails);
+            const executedTrade = await TradingServices.executeTrade(tradeDetails);
 
             res.status(201).json({
                 message: `${type.toUpperCase()} order executed successfully`,
