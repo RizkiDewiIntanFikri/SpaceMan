@@ -13,8 +13,6 @@ import PortfolioAreaChart from "../components/charts/PortfolioAreaChart";
 import DividendBarChart from "../components/charts/DividendBarChart";
 
 import WatchlistTable from "../components/watchlist/WatchlistTable";
-import AlertsCard from "../components/watchlist/AlertsCard";
-import WatchlistAdd from "../components/watchlist/WatchlistAdd";
 import TrendingStocks from "../components/market/TrendingStocks";
 
 import { formatCurrency } from "../utils/formatters";
@@ -49,19 +47,6 @@ export default function StocksDashboard() {
     { name: "Jan", value: 150 }, { name: "Feb", value: 380 }, { name: "Mar", value: 120 },
     { name: "Apr", value: 300 }, { name: "May", value: 180 }, { name: "Jun", value: 220 },
   ];
-
-  // small watch list (for top cards area – optional)
-  const quickWatch = useMemo(() => {
-    const mapName = (sym) =>
-      sym === "AAPL" ? "Apple, Inc" :
-      sym === "GOOGL" ? "Alphabet, Inc" :
-      sym === "AMZN" ? "Amazon.com, Inc" :
-      sym === "MSFT" ? "Microsoft, Inc" :
-      sym === "NVDA" ? "NVIDIA Corp" : sym;
-    return (featured || []).slice(0, 6).map((f) => ({
-      badge: f.logo, name: f.symbol, company: mapName(f.symbol), price: f.price, changePct: f.changePct,
-    }));
-  }, [featured]);
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 bg-gray-50 min-h-screen">
@@ -115,17 +100,6 @@ export default function StocksDashboard() {
             </div>
             <DividendBarChart data={dividendData} />
           </Card>
-
-          {/* Quick “watch” (kecil) – boleh dihapus kalau mau */}
-          <Card>
-            <div className="flex items-center justify-between mb-2">
-              <div className="font-semibold text-gray-800">Quick Watch</div>
-              <button className="text-gray-500 text-sm inline-flex items-center gap-1">Manage <ChevronRight className="h-4 w-4" /></button>
-            </div>
-            <div className="divide-y divide-gray-100">
-              {quickWatch.map((w) => <WatchItem key={w.name} {...w} />)}
-            </div>
-          </Card>
         </div>
       </div>
 
@@ -138,8 +112,6 @@ export default function StocksDashboard() {
 
         {/* Sisi kanan: Add + Alerts + Trending */}
         <div className="space-y-4">
-          <WatchlistAdd />
-          <AlertsCard />
           <TrendingStocks />
         </div>
       </div>
@@ -164,13 +136,6 @@ export default function StocksDashboard() {
               </div>
             </div>
           </div>
-        </Card>
-
-        <Card className="xl:col-span-2">
-          <div className="font-semibold text-gray-800 mb-2">Notes</div>
-          <p className="text-sm text-gray-600">
-            ---
-          </p>
         </Card>
       </div>
     </div>
