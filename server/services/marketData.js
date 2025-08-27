@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const API_KEY = process.env.ALPHA_VANTAGE_KEY;
+const API_KEY = process.env.ALPHA_VANTAGE_API;
 const BASE_URL = 'https://www.alphavantage.co/query';
 
 class MarketDataService {
@@ -13,6 +13,9 @@ class MarketDataService {
             };
 
             const response = await axios.get(BASE_URL, { params });
+            console.log(params);
+            // console.log(API_KEY);
+            console.log('Raw Alpha Vantage Response:', response.data);
             const quoteData = response.data['Global Quote'];
 
             // If the API returns an empty object, it means the symbol is invalid.
@@ -43,6 +46,37 @@ class MarketDataService {
             throw new Error("ALPHA_VANTAGE_API_ERROR");
         }
     }
+
+    static async fetchStockName(symbol) {
+        try {
+            const params = {
+                function: 'SYMBOL_SEARCH',
+                keywords: symbol,
+                apikey: API_KEY,
+            };
+
+            const response = await axios.get(BASE_URL, { params });
+            const matches = response.data.bestMatches;
+
+            if (!matches || matches.length === 0) {
+                return null;
+            }
+
+            // Find the exact match from the search results
+            const exactMatch = matches.find(match => match['1. symbol'] === symbol);
+
+            if (exactMatch) {
+                return exactMatch['2. name']; // Return the company name
+            }
+
+            return null;
+
+        } catch (error) {
+            console.error('Alpha Vantage Symbol Search Error:', error.message);
+            return null;
+        }
+    }
+
 }
 
 module.exports = { MarketDataService };
