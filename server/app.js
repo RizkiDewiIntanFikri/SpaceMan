@@ -10,22 +10,23 @@ const PriceUpdater = require("./jobs/priceUpdater");
 const { verifyToken } = require("./utilities/utils");
 const socketManager = require("./utilities/socketManager");
 const { TradingServices } = require("./services/tradingServices");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: "*" },
-});
-
-TradingServices.initialize(io);
-
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(route);
 app.use(errorHandler);
 
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+TradingServices.initialize(io);
+
+// Helper function
 async function safeAskGemini(prompt) {
   try {
     const result = await askGemini(prompt);
@@ -38,6 +39,7 @@ async function safeAskGemini(prompt) {
   }
 }
 
+// Socket.IO connection
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
@@ -49,6 +51,7 @@ io.on("connection", (socket) => {
       }
       const payload = verifyToken(token);
       socketManager.addUser(payload.userId, socket.id);
+      console.log("User authenticated:", payload.userId);
     } catch (error) {
       console.log("AUTHENTICATION ERROR IN SOCKET ===>", error);
     }
@@ -56,10 +59,8 @@ io.on("connection", (socket) => {
 
   socket.on("askAI", async (question) => {
     console.log("User asked:", question);
-
     try {
       const answer = await safeAskGemini(question);
-      console.log("Gemini replied:", answer);
       socket.emit("aiMessage", answer);
     } catch (err) {
       console.log("Gemini error:", err.message || err);

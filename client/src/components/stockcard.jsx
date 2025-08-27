@@ -1,11 +1,24 @@
-// StockCard.jsx
-import { useMarketStore } from "../../stores/marketStore";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function StockCard({ stock, onTrade }) {
   const { symbol, name, logo, price, changePct } = stock;
+  const { theme } = useTheme();
+
+  const bgColor = theme === "light" ? "white" : "black";
+  const borderColor = theme === "light" ? "#e5e7eb" : "#1f1f1f";
+  const textColor = theme === "light" ? "black" : "white";
+  const buttonBg = theme === "light" ? "#f3f4f6" : "#1f1f1f";
+  const buttonText = theme === "light" ? "black" : "white";
 
   return (
-    <div className="border rounded-2xl p-4 bg-white">
+    <div
+      className="border rounded-2xl p-4"
+      style={{
+        backgroundColor: bgColor,
+        borderColor: borderColor,
+        color: textColor,
+      }}
+    >
       <div className="flex justify-between items-center mb-2">
         <div>
           {logo} {name}
@@ -15,7 +28,12 @@ export default function StockCard({ stock, onTrade }) {
         </div>
       </div>
       <button
-        className="mt-2 w-full py-1 rounded-xl border bg-gray-100"
+        className="mt-2 w-full py-1 rounded-xl border"
+        style={{
+          backgroundColor: buttonBg,
+          color: buttonText,
+          borderColor: borderColor,
+        }}
         onClick={() => onTrade(symbol, price)}
       >
         Buy/Sell

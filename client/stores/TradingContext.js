@@ -3,14 +3,13 @@ import { create } from "zustand";
 import { io } from "socket.io-client";
 import axios from "axios";
 
-// Socket connection
 const socket = io("http://localhost:3000");
 
 const useTradingStore = create((set, get) => ({
   messages: [],
-  history: {}, // chart per simbol
+  history: {},
   loading: false,
-  connected: false, // cek koneksi socket
+  connected: false,
 
   addAiMessage: (msg) =>
     set((state) => ({
@@ -18,7 +17,6 @@ const useTradingStore = create((set, get) => ({
       loading: false,
     })),
 
-  // mengirim pesan user
   sendMessage: async (symbol) => {
     if (!symbol.trim()) return;
 

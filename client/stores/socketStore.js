@@ -1,12 +1,12 @@
 import { create } from "zustand";
 
-export const useSocketStore = create((set, get) => ({
+export const useSocketStore = create((set) => ({
   aiMessages: [],
-  socket: null,
-  status: "Disconnected",
-  setSocket: (socket) => set({ socket }),
-  setStatus: (status) => set({ status }),
   addAiMessage: (msg) =>
     set((state) => ({ aiMessages: [...state.aiMessages, msg] })),
   resetChat: () => set({ aiMessages: [] }),
+  socket: null,
+  setSocket: (s) => set({ socket: s }),
+  status: "Disconnected",
+  setStatus: (s) => set({ status: s }),
 }));
