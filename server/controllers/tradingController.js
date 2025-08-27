@@ -1,4 +1,9 @@
+PortfolioService = require('../services/portfolioServices');
+socketManager = require('../utilities/socketManager');
+
+const PortfolioService = require('../services/portfolioServices');
 const { TradingServices } = require('../services/tradingServices');
+const socketManager = require('../utilities/socketManager');
 
 class TradingController {
     static async placeOrder(req, res, next) {
@@ -39,6 +44,14 @@ class TradingController {
             next(error);
         }
     }
+
+    // ! IMPORTANT : THIS PART FOR REALTIME SOCKET STUFFS
+
+    static initialize(socketIoInstance) {
+        io = socketIoInstance;
+        console.log("Socket.IO instance initialized in TradingController");
+    }
+
 }
 
 module.exports = { TradingController };

@@ -10,11 +10,14 @@ const { Server } = require("socket.io")
 const PriceUpdater = require("./jobs/priceUpdater")
 const { verifyToken } = require("./utilities/utils")
 const socketManager = require("./utilities/socketManager")
+const { TradingServices } = require("./services/tradingServices")
 
 const server = http.createServer(app)
 const io = new Server(server, {
     cors: { origin: "*" }
 })
+
+TradingServices.initialize(io);
 
 app.use(cors())
 app.use(express.json())

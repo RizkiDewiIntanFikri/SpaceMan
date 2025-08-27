@@ -1,5 +1,6 @@
 const { User, Portfolio, Holding, Trade, Stock, sequelize } = require('../models');
 const { MarketDataService } = require('../services/marketData');
+const socketManager = require('../utilities/socketManager');
 
 class TradingServices {
     static async executeTrade({ userId, symbol, quantity, type }) {
@@ -105,6 +106,18 @@ class TradingServices {
 
             // 4. If all steps succeed, commit the transaction
             await t.commit();
+
+            // ! REAL-TIME LOGIC
+            const socketId = socketManager.getSocketId(userId)
+
+            if (socketId) {
+                console.log(`User ${userId} is online. Sending portfolio update to socket ${socketId}.`);
+                // Fetch the user's brand new portfolio state
+                const updatedPortfolio = await PortfolioService.getPortfolio(userId);
+                // Emit the event directly and only to that user's socket
+                io.to(socketId).emit('portfolio-updated', updatedPortfolio);
+            }
+
             return tradeRecord;
 
         } catch (error) {
