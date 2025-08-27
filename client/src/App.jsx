@@ -42,7 +42,7 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<StocksDashboard />} />
         <Route path="/stocks" element={<StocksDashboard />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/leaderboard" element={<Leaderboard />} />

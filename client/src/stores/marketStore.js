@@ -8,7 +8,11 @@ export const useMarketStore = create((set, get) => ({
   selectedSymbol: "AAPL",
   featured: SYMBOLS.map(sym => ({
     symbol: sym,
-    name: sym === "GOOGL" ? "Alphabet, Inc" : sym === "MSFT" ? "Microsoft, Inc" : sym === "NVDA" ? "NVIDIA Corp" : sym === "AMZN" ? "Amazon.com, Inc" : "Apple, Inc",
+    name: sym === "GOOGL" ? "Alphabet, Inc"
+      : sym === "MSFT" ? "Microsoft, Inc"
+        : sym === "NVDA" ? "NVIDIA Corp"
+          : sym === "AMZN" ? "Amazon.com, Inc"
+            : "Apple, Inc",
     logo: logoOf(sym),
     price: initialPrice[sym],
     changePct: 0,
@@ -25,8 +29,8 @@ export const useMarketStore = create((set, get) => ({
 
   tick: () => set((state) => {
     const featured = state.featured.map(st => {
-      const prev = state.series[st.symbol];
-      const last = prev[prev.length - 1] ?? st.price;
+      const prevSeries = state.series[st.symbol];
+      const last = prevSeries[prevSeries.length - 1] ?? st.price;
       const next = Math.max(1, last + (Math.random() - 0.5) * 2);
       const changePct = ((next - st.price) / st.price) * 100;
       return { ...st, price: next, changePct };
@@ -34,13 +38,13 @@ export const useMarketStore = create((set, get) => ({
     const series = { ...state.series };
     for (const st of featured) {
       const prev = state.series[st.symbol];
-      series[st.symbol] = [...prev.slice(-39), st.price]; // or next
+      series[st.symbol] = [...prev.slice(-39), st.price /* atau next; pilih salah satu konsisten */];
     }
     return { featured, series };
   }),
 }));
 
-// timer aman (ref-count) — panggil dari useEffect
+// Timer aman (ref-count) — panggil dari useEffect
 let _tickTimer = null;
 let _tickRefs = 0;
 export function startMarketAutoTick(intervalMs = 2000) {
@@ -48,19 +52,17 @@ export function startMarketAutoTick(intervalMs = 2000) {
   _tickRefs += 1;
   if (!_tickTimer) {
     _tickTimer = setInterval(() => {
-      try {
-        const { tick } = useMarketStore.getState();
-        if (typeof tick === "function") tick();
-      } catch (err) {
-        console.error("[market/tick] failed:", err);
-      }
+      try { useMarketStore.getState().tick?.(); }
+      catch (err) { console.error("[market/tick] failed:", err); }
     }, intervalMs);
+    // console.log("[market] timer started");
   }
   return () => {
     _tickRefs = Math.max(0, _tickRefs - 1);
     if (_tickRefs === 0 && _tickTimer) {
       clearInterval(_tickTimer);
       _tickTimer = null;
+      // console.log("[market] timer cleared");
     }
   };
 }

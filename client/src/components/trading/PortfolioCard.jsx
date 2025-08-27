@@ -1,10 +1,13 @@
+import { shallow } from 'zustand/shallow'
 import { usePortfolioStore } from '../../stores/portfolioStore'
 import { formatCurrency } from '../../utils/formatters'
 
 export default function PortfolioCard() {
-  const cashBalance = usePortfolioStore(s => s.cashBalance)
-  const totalValue  = usePortfolioStore(s => s.totalValue)
-  const pnlPctRaw   = usePortfolioStore(s => s.pnlPct)
+  // satu subscription + shallow (lebih efisien & stabil)
+  const [cashBalance, totalValue, pnlPctRaw] = usePortfolioStore(
+    s => [s.cashBalance, s.totalValue, s.pnlPct],
+    shallow
+  )
 
   const pnlPct = Number.isFinite(pnlPctRaw) ? pnlPctRaw : 0
   const up = pnlPct >= 0
@@ -23,7 +26,7 @@ export default function PortfolioCard() {
         </div>
         <div className="col-span-2">
           <div className="text-xs text-gray-500">P&L</div>
-          <div className={'text-sm font-medium ' + (up ? 'text-success-600' : 'text-danger-600')}>
+          <div className={'text-sm font-medium ' + (up ? 'text-emerald-600' : 'text-rose-600')}>
             {up ? '▲' : '▼'} {Math.abs(pnlPct).toFixed(2)}%
           </div>
         </div>
