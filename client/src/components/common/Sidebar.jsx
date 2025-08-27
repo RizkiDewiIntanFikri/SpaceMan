@@ -1,31 +1,55 @@
-import { NavLink } from 'react-router'
+import React from 'react'
+import { useLocation, Link } from 'react-router'
+import { 
+  Home, 
+  TrendingUp, 
+  PieChart, 
+  Trophy, 
+  BarChart3,
+  Settings
+} from 'lucide-react'
 
-const Item = ({ to, icon, label }) => (
-  <NavLink
-    to={to}
-    className={({ isActive }) =>
-      ['flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition',
-       isActive ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100'].join(' ')
-    }>
-    <span className="text-lg">{icon}</span>
-    <span>{label}</span>
-  </NavLink>
-)
+const navigation = [
+  { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'Stocks', href: '/stocks', icon: TrendingUp },
+  { name: 'Portfolio', href: '/portfolio', icon: PieChart },
+  { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
+  { name: 'Trade', href: '/trade', icon: BarChart3 },
+  { name: 'Settings', href: '/settings', icon: Settings },
+]
 
 export default function Sidebar() {
+  const location = useLocation()
+
   return (
-    <aside className="hidden lg:flex lg:w-64 xl:w-72 flex-col border-r border-gray-200 bg-white p-4 gap-2">
-      <div className="flex items-center gap-2 px-2 py-2">
-        <span className="text-2xl">📈</span>
-        <span className="font-semibold">SpaceMan</span>
+    <div className="w-64 bg-white border-r border-gray-200 p-6">
+      {/* Logo */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">SpaceMan</h1>
       </div>
-      <nav className="mt-4 grid gap-1">
-        <Item to="/dashboard" icon="🏠" label="Dashboard" />
-        <Item to="/portfolio" icon="💼" label="Portfolio" />
-        <Item to="/trade" icon="🧾" label="Trade" />
-        <Item to="/leaderboard" icon="🏆" label="Leaderboard" />
+
+      {/* Navigation */}
+      <nav className="space-y-2">
+        {navigation.map((item) => {
+          const isActive = location.pathname === item.href
+          const Icon = item.icon
+          
+          return (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                isActive
+                  ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              {item.name}
+            </Link>
+          )
+        })}
       </nav>
-      <div className="mt-auto text-xs text-gray-400 px-2">v0.1 JS</div>
-    </aside>
+    </div>
   )
 }

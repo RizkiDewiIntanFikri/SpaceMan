@@ -2,7 +2,8 @@ require("dotenv").config()
 const express = require("express")
 const app = express()
 const cors = require("cors")
-const PORT = process.env.PORT || 3000
+const env = require("./config/env")
+const PORT = env.PORT
 const http = require("http")
 const route = require("./routes/route")
 const errorHandler = require("./middlewares/errorHandler")
@@ -53,7 +54,7 @@ io.on('connection', (socket) => {
 //! SAFETY CHECK
 const priceUpdaterJob = new PriceUpdater(io);
 // Only start the job if the environment variable is set to 'true'
-if (process.env.RUN_PRICE_UPDATER === 'true') {
+if (env.RUN_PRICE_UPDATER === 'true') {
     priceUpdaterJob.start();
 } else {
     console.log('Price updater job is disabled. Set RUN_PRICE_UPDATER=true in .env to enable.');
