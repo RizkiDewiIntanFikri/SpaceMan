@@ -50,6 +50,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
     }
-  }, { sequelize, modelName: 'Trade', updatedAt: false }); // A trade record is immutable
+  }, { sequelize, modelName: 'Trade'});
   return Trade;
 };
