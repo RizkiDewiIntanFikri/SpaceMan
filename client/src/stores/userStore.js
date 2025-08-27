@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { registerUser as registerUserApi } from '../services/apiServices';
+import { registerUser as registerUserApi } from '../services/apiService';
 
 export const useUserStore = create((set) => ({
     username: null,

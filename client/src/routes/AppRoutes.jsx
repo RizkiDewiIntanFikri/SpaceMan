@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import Landing from "../pages/Landing";
 import Portfolio from "../pages/Portfolio";
 import Dashboard from "../pages/Dashboard";
+import Protection from "../components/Protection";
 
 export default function AppRoutes() {
   return (
@@ -9,8 +10,22 @@ export default function AppRoutes() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/portfolio"
+            element={
+              <Protection>
+                <Portfolio />
+              </Protection>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <Protection>
+                <Dashboard />
+              </Protection>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </div>
