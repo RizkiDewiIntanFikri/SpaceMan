@@ -1,8 +1,19 @@
 const { User, Portfolio, Holding, Trade, Stock, sequelize } = require('../models');
 const { MarketDataService } = require('../services/marketData');
 const socketManager = require('../utilities/socketManager');
+const PortfolioService = require('./portfolioServices');
+
+let io // Socket.IO instance
 
 class TradingServices {
+
+    // Method to initialize the Socket.IO instance
+    // !Real-time stuff
+    static initialize(socketIoInstance) {
+        io = socketIoInstance;
+        console.log('TradingService has been initialized with Socket.io.');
+    }
+
     static async executeTrade({ userId, symbol, quantity, type }) {
         const t = await sequelize.transaction()
         try {
@@ -108,6 +119,7 @@ class TradingServices {
             await t.commit();
 
             // ! REAL-TIME LOGIC
+            //
             const socketId = socketManager.getSocketId(userId)
 
             if (socketId) {

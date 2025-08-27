@@ -48,8 +48,14 @@ io.on('connection', (socket) => {
     });
 });
 
+//! SAFETY CHECK
 const priceUpdaterJob = new PriceUpdater(io);
-priceUpdaterJob.start();
+// Only start the job if the environment variable is set to 'true'
+if (process.env.RUN_PRICE_UPDATER === 'true') {
+    priceUpdaterJob.start();
+} else {
+    console.log('Price updater job is disabled. Set RUN_PRICE_UPDATER=true in .env to enable.');
+}
 
 server.listen(PORT, () => {
     console.log(`Server is running on port http://localhost:${PORT}`)

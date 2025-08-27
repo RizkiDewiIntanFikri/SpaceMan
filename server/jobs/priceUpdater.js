@@ -1,7 +1,7 @@
 const { MarketDataService } = require("../services/marketData");
 const { Stock } = require("../models")
 
-const FEATURED_STOCKS = ['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'NVDA']
+const FEATURED_STOCKS = ['AAPL', 'GOOGL', 'AMZN']
 
 class PriceUpdater {
 
