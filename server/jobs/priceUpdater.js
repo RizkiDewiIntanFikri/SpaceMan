@@ -1,7 +1,7 @@
-const axios = require('axios');
+const axios = require('axios'); // We need axios to make HTTP requests
 const { Stock } = require("../models");
-const PortfolioService = require("../services/portfolioServices");
-const { LeaderboardService } = require("../services/leaderboardServices");
+const PortfolioService = require("../services/portfolioServices"); // Corrected path based on your code
+const { LeaderboardService } = require("../services/leaderboardServices"); // Corrected path based on your code
 
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 // You have correctly reduced the number of stocks to stay within limits
@@ -16,7 +16,7 @@ class PriceUpdater {
 
     start() {
         this.updatePrices();
-        this.interval = setInterval(() => this.updatePrices(), 30000);
+        this.interval = setInterval(() => this.updatePrices(), 15000);
         console.log('Price updater job started (using Finnhub). Fetching every 30 seconds.');
     }
 
@@ -26,7 +26,7 @@ class PriceUpdater {
 
         for (const symbol of FEATURED_STOCKS) {
             try {
-                //USING FINNHUB NOW
+                // ! CHANGE THE PRICE UPDATE USING FINNHUB
                 const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`;
                 const response = await axios.get(url);
                 const quoteData = response.data;
@@ -42,7 +42,10 @@ class PriceUpdater {
 
                     priceUpdates.push(formattedQuote);
                     await Stock.update({ price: formattedQuote.price }, { where: { symbol: symbol } });
+
+                    console.log(`Raw Finnhub Response for ${symbol}:`, response.data);
                 }
+
             } catch (error) {
                 console.error(`Failed to fetch price for ${symbol} from Finnhub:`, error.message);
             }
