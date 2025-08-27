@@ -1,5 +1,7 @@
 const { MarketDataService } = require("../services/marketData");
-const { Stock } = require("../models")
+const { Stock } = require("../models");
+const PortfolioService = require("../services/portfolioServices");
+const { LeaderboardService } = require("../services/leaderboardServices");
 
 const FEATURED_STOCKS = ['AAPL', 'GOOGL', 'AMZN']
 
@@ -40,6 +42,15 @@ class PriceUpdater {
             // The event name 'price-update' can be listened for on the frontend.
             this.io.emit('price-update', priceUpdates);
             console.log('Broadcasted price updates to all clients.');
+            //UPDATE LEADERBOARD
+            try {
+                await PortfolioService.recalculateAllPortfolios();
+                const newLeaderboard = await LeaderboardService.getLeaderboard();
+                this.io.emit('leaderboard-update', newLeaderboard);
+            } catch (error) {
+                console.log("Failed to broadcast leaderboard", error);
+
+            }
         }
     }
 

@@ -51,6 +51,33 @@ class PortfolioService {
 
         return formattedPortfolio;
     }
+
+    static async recalculateAllPortfolios() {
+        // This is a complex raw SQL query for efficiency. It joins all the necessary tables,
+        // calculates the total value of all holdings for each user, and then updates
+        // the user's portfolioValue by adding their cashBalance to their calculated holdingsValue.
+        const query = `
+            UPDATE "Users"
+            SET "portfolioValue" = "cashBalance" + COALESCE(holdings_value, 0)
+            FROM (
+                SELECT
+                    p."userId",
+                    SUM(h.quantity * s.price) AS holdings_value
+                FROM "Holdings" h
+                JOIN "Stocks" s ON h.symbol = s.symbol
+                JOIN "Portfolios" p ON h."portfolioId" = p.id
+                GROUP BY p."userId"
+            ) AS user_holdings
+            WHERE "Users".id = user_holdings."userId";
+        `;
+
+        try {
+            await sequelize.query(query);
+            console.log('Successfully recalculated all user portfolio values.');
+        } catch (error) {
+            console.error('Error recalculating portfolio values:', error);
+        }
+    }
 }
 
 module.exports = PortfolioService;
