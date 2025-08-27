@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
-import { useTheme } from "../../context/ThemeContext"; // sesuaikan path
-
+import { useTheme } from "../../context/themeContext"; // Adjust the path as needed
 export default function Header() {
   const inputRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
@@ -17,7 +16,7 @@ export default function Header() {
   }, []);
 
   const bgColor = theme === "light" ? "white" : "black";
-  const borderColor = theme === "light" ? "#e5e7eb" : "#1f1f1f"; 
+  const borderColor = theme === "light" ? "#e5e7eb" : "#1f1f1f";
   const textColor = theme === "light" ? "black" : "white";
 
   return (

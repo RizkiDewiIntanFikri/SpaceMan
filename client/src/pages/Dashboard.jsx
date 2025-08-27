@@ -20,7 +20,7 @@ import TrendingStocks from "../components/market/TrendingStocks";
 
 export default function Dashboard() {
   const stocks = useMarketStore((s) => s.featured);
-  usePortfolioStore((s) => s.totalValue); 
+  usePortfolioStore((s) => s.totalValue);
 
   const [open, setOpen] = useState(false);
 
@@ -28,6 +28,7 @@ export default function Dashboard() {
     const stopM = startMarketAutoTick(2000);
     const stopP = startPortfolioAutoRecalc();
     const stopW = startWatchlistEngine();
+
     return () => {
       stopM?.();
       stopP?.();
@@ -38,7 +39,6 @@ export default function Dashboard() {
   const topStocks = useMemo(() => (stocks || []).slice(0, 5), [stocks]);
 
   return (
-    // lebih mepet: kecilkan padding & gap
     <div className="px-3 sm:px-4 lg:px-6 py-4 space-y-5">
       {/* Top Stocks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
@@ -61,13 +61,7 @@ export default function Dashboard() {
           </div>
           <StockLine />
         </div>
-        <PortfolioCard
-          style={{
-            backgroundColor: bgColor,
-            border: `1px solid ${borderColor}`,
-            color: textColor,
-          }}
-        />
+        <PortfolioCard /> {/* props style dihapus */}
       </div>
 
       {/* Portfolio Performance + History */}
@@ -76,13 +70,7 @@ export default function Dashboard() {
           <div className="font-semibold mb-2">Portfolio</div>
           <PortfolioArea />
         </div>
-        <TradeTable
-          style={{
-            backgroundColor: bgColor,
-            border: `1px solid ${borderColor}`,
-            color: textColor,
-          }}
-        />
+        <TradeTable /> {/* props style dihapus */}
       </div>
 
       {/* Watchlist + Alerts + Trending */}
