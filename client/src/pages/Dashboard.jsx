@@ -11,8 +11,6 @@ import StockLine from '../components/charts/StockLine'
 import PortfolioArea from '../components/charts/PortfolioArea'
 
 import WatchlistTable from '../components/watchlist/WatchlistTable'
-import WatchlistAdd from '../components/watchlist/WatchlistAdd'
-import AlertsCard from '../components/watchlist/AlertsCard'
 import TrendingStocks from '../components/market/TrendingStocks'
 
 export default function Dashboard() {
@@ -71,7 +69,6 @@ export default function Dashboard() {
         </div>
         <div className="space-y-3">
           <WatchlistAdd />
-          <AlertsCard />
           <TrendingStocks />
         </div>
       </div>
