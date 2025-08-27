@@ -1,15 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import { AuthProvider } from "../context/authProvider";
 
-import Dashboard from "../Pages/DashboardPage";
+import Chattbot from "../Pages/chattbot";
 
 export default function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/chattbot" element={<Chattbot />} />
         </Routes>
       </Router>
     </AuthProvider>
