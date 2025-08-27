@@ -1,3 +1,7 @@
+import { Routes, Route, Navigate } from 'react-router'
+import Layout from './layouts/Layout'
+import Dashboard from './pages/Dashboard'
+import StocksDashboard from "./pages/StocksDashboard";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -30,12 +34,17 @@ function App() {
     };
   }, []);
 
+export default function App() {
   return (
-    <div>
-      <h1>Socket Test</h1>
-      <p>Status: {status}</p>
-    </div>
-  );
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/stocks" element={<StocksDashboard />} />
+      </Routes>
+    </Layout>
+  )
 }
+
 
 export default App;
