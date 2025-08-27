@@ -1,68 +1,68 @@
 import React, { useState } from "react";
 import { useUserStore } from "../stores/userStore";
 
-function LandingPage() {
-  // State to manage the username input field
+// Note: Your AppRoutes.jsx will automatically handle redirecting
+// the user away from this page if they are already logged in.
+
+function Landing() {
   const [username, setUsername] = useState("");
-  // State to show loading or error messages
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Get the register function from our Zustand store
+  // Get the 'register' action from our Zustand store
   const register = useUserStore((state) => state.register);
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the form from reloading the page
+    e.preventDefault();
     if (!username.trim()) {
       setError("Username cannot be empty.");
       return;
     }
-
     setIsLoading(true);
     setError("");
 
-    // Call the register action from the userStore
     const result = await register(username);
 
     setIsLoading(false);
-
     if (!result.success) {
-      // If registration failed, show the error message from the backend
       setError(result.message);
     }
-    // If registration is successful, the `App.jsx` component's
-    // `useEffect` will detect the change in `isAuthenticated`
-    // and handle the socket connection. The router will handle the redirect.
+    // On success, the state change in userStore will trigger the redirect in AppRoutes.jsx
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Join the Simulation
-        </h2>
+    // Main container: Centers the content vertically and horizontally on all screen sizes.
+    <div className="flex items-center justify-center min-h-screen bg-gray-900 p-4">
+      <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        <h1 className="text-3xl font-bold mb-2 text-center text-white">
+          Live Trading Simulator
+        </h1>
+        <p className="text-gray-400 mb-6 text-center">
+          Enter a username to start with $100,000.
+        </p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label
-              htmlFor="username"
-              className="block mb-2 text-sm font-medium text-gray-300"
-            >
-              Choose a Username
+            <label htmlFor="username" className="sr-only">
+              Username
             </label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., trader_jane"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              placeholder="Choose your trader name"
             />
           </div>
-          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+          {error && (
+            <p className="text-red-400 text-sm text-center mb-4">{error}</p>
+          )}
+
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 disabled:bg-gray-500"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed"
           >
             {isLoading ? "Joining..." : "Start Trading"}
           </button>
@@ -72,4 +72,4 @@ function LandingPage() {
   );
 }
 
-export default LandingPage;
+export default Landing;
