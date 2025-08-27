@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useUserStore } from "../stores/userStore";
+import { useNavigate } from "react-router";
 
 // Note: Your AppRoutes.jsx will automatically handle redirecting
 // the user away from this page if they are already logged in.
@@ -8,6 +9,7 @@ function Landing() {
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   // Get the 'register' action from our Zustand store
   const register = useUserStore((state) => state.register);
@@ -24,7 +26,9 @@ function Landing() {
     const result = await register(username);
 
     setIsLoading(false);
-    if (!result.success) {
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
       setError(result.message);
     }
     // On success, the state change in userStore will trigger the redirect in AppRoutes.jsx
