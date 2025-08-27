@@ -35,7 +35,9 @@ io.on('connection', (socket) => {
                 return;
             }
             const payload = verifyToken(token)
-            socketManager.addUser(payload.userId, socket.id)
+            socketManager.addUser(payload.id, socket.id)
+            console.log("DEBUGGING HERE =========", payload);
+
         } catch (error) {
             console.log("AUTHENTICATION ERROR IN SOCKET ===>", error);
 

@@ -48,6 +48,8 @@ class PriceUpdater {
 
             } catch (error) {
                 console.error(`Failed to fetch price for ${symbol} from Finnhub:`, error.message);
+                console.log(error);
+                
             }
         }
 
