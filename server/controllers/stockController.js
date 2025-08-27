@@ -11,7 +11,7 @@ class StockController {
             const quote = await MarketDataService.fetchStockQuote(symbol.toUpperCase());
             res.status(200).json(quote);
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             next(error);
         }
     }

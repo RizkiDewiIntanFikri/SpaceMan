@@ -29,7 +29,7 @@ class UserController {
             })
 
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             // If any error occurred, the transaction would have been rolled back automatically.
             // We still need to ensure any manually started transaction is rolled back here.
             if (!t.finished) {
