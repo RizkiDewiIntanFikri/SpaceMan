@@ -1,41 +1,17 @@
-import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { AuthProvider } from "../context/authProvider";
 
-function App() {
-  const [status, setStatus] = useState("Disconnected");
+import Dashboard from "../Pages/DashboardPage";
 
-  useEffect(() => {
-    const socket = io("http://localhost:3000", {
-      transports: ["websocket"],
-      reconnection: true,
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to backend. My socket.id:", socket.id);
-      setStatus("Connected ✅");
-
-      // ambil token dari localStorage (atau state global kamu)
-      const token = localStorage.getItem("access_token");
-      socket.emit("authenticate", token);
-      console.log("Sent authenticate event with token:", token);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Disconnected from backend");
-      setStatus("Disconnected ❌");
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
+export default function App() {
   return (
-    <div>
-      <h1>Socket Test</h1>
-      <p>Status: {status}</p>
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
-
-export default App;
