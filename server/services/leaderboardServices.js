@@ -11,3 +11,5 @@ class LeaderboardService {
         return topUsers
     }
 }
+
+module.exports = { LeaderboardService }
