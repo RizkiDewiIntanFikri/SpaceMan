@@ -1,0 +1,14 @@
+[dotenv@17.2.1] injecting env (5) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+TradingService has been initialized with Socket.io.
+Price updater job is disabled. Set RUN_PRICE_UPDATER=true in .env to enable.
+Server is running on port http://localhost:3000
+Executing (27e5db40-4b45-4a30-ae79-12beb0d97ac2): START TRANSACTION;
+Executing (default): SELECT "id", "username", "cashBalance", "portfolioValue", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."username" = 'testuser1000';
+Executing (27e5db40-4b45-4a30-ae79-12beb0d97ac2): INSERT INTO "Users" ("id","username","cashBalance","portfolioValue","createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id","username","cashBalance","portfolioValue","createdAt","updatedAt";
+Executing (27e5db40-4b45-4a30-ae79-12beb0d97ac2): INSERT INTO "Portfolios" ("id","userId","totalValue","createdAt","updatedAt") VALUES (DEFAULT,$1,$2,$3,$4) RETURNING "id","userId","totalValue","createdAt","updatedAt";
+Executing (27e5db40-4b45-4a30-ae79-12beb0d97ac2): COMMIT;
+Executing (0731a070-e774-4347-8eb2-1ca65b8f99d5): START TRANSACTION;
+Executing (default): SELECT "id", "username", "cashBalance", "portfolioValue", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."username" = 'Cindygulla';
+Executing (0731a070-e774-4347-8eb2-1ca65b8f99d5): INSERT INTO "Users" ("id","username","cashBalance","portfolioValue","createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id","username","cashBalance","portfolioValue","createdAt","updatedAt";
+Executing (0731a070-e774-4347-8eb2-1ca65b8f99d5): INSERT INTO "Portfolios" ("id","userId","totalValue","createdAt","updatedAt") VALUES (DEFAULT,$1,$2,$3,$4) RETURNING "id","userId","totalValue","createdAt","updatedAt";
+Executing (0731a070-e774-4347-8eb2-1ca65b8f99d5): COMMIT;
