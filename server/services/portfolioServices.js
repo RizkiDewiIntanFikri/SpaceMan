@@ -1,4 +1,4 @@
-const { User, Portfolio, Holding, Stock } = require('../models');
+const { User, Portfolio, Holding, Stock, sequelize } = require('../models');
 
 class PortfolioService {
 
