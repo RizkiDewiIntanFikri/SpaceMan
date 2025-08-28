@@ -50,7 +50,6 @@ export default function WatchlistTable() {
         </button>
       </div>
 
-      {/* === Quick Watch: kotak-kotak horizontal di DALAM My Watchlist === */}
       {!!quickWatch.length && (
         <>
           <div className="text-xs text-gray-500 mb-2"> </div>
@@ -95,7 +94,6 @@ export default function WatchlistTable() {
         </>
       )}
 
-      {/* === Item watchlist milik user: tampil sebagai tile grid, tidak memanjang === */}
       {items.length === 0 ? (
         <div className="text-sm text-gray-500"> </div>
       ) : (

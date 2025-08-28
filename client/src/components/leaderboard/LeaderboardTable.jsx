@@ -14,7 +14,7 @@ const heads = [
 
 export default function LeaderboardTable({ timeframe = "30D" }) {
   const players = useLeaderboardStore(s => s.players)
-  const [query, setQuery] = useState("")
+  const [query] = useState("")
   const [sortKey, setSortKey] = useState("pnl")
   const [sortDir, setSortDir] = useState("desc")
 
@@ -53,10 +53,6 @@ export default function LeaderboardTable({ timeframe = "30D" }) {
       <div className="flex items-center justify-between mb-3">
         <div className="font-semibold text-gray-800">Leaderboard</div>
         <div className="relative w-60">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-4 w-4 text-gray-400" />
-          </div>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search player…" className="ui-search" />
         </div>
       </div>
 
