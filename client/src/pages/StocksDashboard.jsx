@@ -120,25 +120,34 @@ export default function StocksDashboard() {
             <div>
               <div className="text-xs text-gray-500">Cash Balance</div>
               <div className="text-lg font-semibold">
+                {/* Safely access cashBalance from the portfolio object */}
                 {formatCurrency(portfolio?.cashBalance || 0)}
               </div>
             </div>
             <div>
               <div className="text-xs text-gray-500">Total Value</div>
               <div className="text-lg font-semibold">
+                {/* Safely access totalValue from the portfolio object */}
                 {formatCurrency(portfolio?.totalValue || 0)}
               </div>
             </div>
             <div className="col-span-2">
-              <div className="text-xs text-gray-500">P&L</div>
-              <div
-                className={`text-sm font-medium ${
-                  portfolio?.pnlPct >= 0 ? "text-emerald-600" : "text-rose-600"
-                }`}
-              >
-                {portfolio?.pnlPct >= 0 ? "▲" : "▼"}{" "}
-                {Math.abs(portfolio?.pnlPct || 0).toFixed(2)}%
-              </div>
+              <div className="text-xs text-gray-500">P&L %</div>
+              {/* Calculate P&L percentage on the fly */}
+              {portfolio &&
+                (() => {
+                  const pnl = ((portfolio.totalValue - 100000) / 100000) * 100;
+                  const isPositive = pnl >= 0;
+                  return (
+                    <div
+                      className={`text-sm font-medium ${
+                        isPositive ? "text-emerald-600" : "text-rose-600"
+                      }`}
+                    >
+                      {isPositive ? "▲" : "▼"} {Math.abs(pnl).toFixed(2)}%
+                    </div>
+                  );
+                })()}
             </div>
           </div>
         </Card>
