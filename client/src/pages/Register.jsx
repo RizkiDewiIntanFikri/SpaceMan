@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, ArrowRight, Sparkles } from 'lucide-react';
+import { User, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 
 const Register = ({ onRegisterSuccess }) => {
@@ -14,29 +14,48 @@ const Register = ({ onRegisterSuccess }) => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError(''); // Clear error when user types
+    setError(''); 
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (formData.username.length < 3) {
+      setError('Username must be at least 3 characters long');
+      return;
+    }
+    
     setIsLoading(true);
     setError('');
 
     try {
+      console.log('Register.jsx - Submitting registration for username:', formData.username);
+      
       const response = await axios.post('http://localhost:3000/register', formData);
+      
+      console.log('Register.jsx - Registration successful:', response.data);
       
       // Store token in localStorage
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       
+      console.log('Register.jsx - Data stored in localStorage, calling onRegisterSuccess');
+      
       // Call the success callback to redirect to home
       onRegisterSuccess(response.data);
+      
+      console.log('Register.jsx - onRegisterSuccess called successfully');
     } catch (error) {
+      console.log('Register.jsx - Registration error:', error);
+      
       if (error.response) {
         if (error.response.status === 400) {
           setError('Username is required');
         } else if (error.response.status === 409) {
           setError('Username already exists. Please choose another one.');
+        } else if (error.response.status === 500) {
+          setError('Server error. Please try again later.');
         } else {
           setError('Registration failed. Please try again.');
         }
@@ -81,14 +100,19 @@ const Register = ({ onRegisterSuccess }) => {
                   className="block w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your username"
                   required
+                  minLength={3}
                 />
               </div>
+              <p className="text-xs text-gray-500">Username must be at least 3 characters long</p>
             </div>
 
             {/* Error Message */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                <p className="text-red-600 text-sm">{error}</p>
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
               </div>
             )}
 
@@ -126,14 +150,6 @@ const Register = ({ onRegisterSuccess }) => {
             </p>
           </div>
         </div>
-
-        {/* Footer */}
-        {/* <div className="text-center mt-8">
-          <p className="text-gray-500 text-sm">
-            Already have an account?{' '}
-            <span className="text-blue-600 font-medium">Sign in</span>
-          </p>
-        </div> */}
       </div>
     </div>
   );

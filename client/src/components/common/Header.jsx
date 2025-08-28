@@ -1,33 +1,33 @@
 import { useRef, useEffect } from 'react'
+import { LogOut, User, Bell, Search } from 'lucide-react'
 
-export default function Header() {
-  const inputRef = useRef(null)
+export default function Header({ onLogout, user }) {
+  const searchRef = useRef()
 
   useEffect(() => {
-    const onKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    const handleKeyDown = (e) => {
+      if (e.key === '/' && e.ctrlKey) {
         e.preventDefault()
-        inputRef.current?.focus()
+        searchRef.current?.focus()
       }
     }
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   return (
     <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-gray-200">
-      <div className="flex items-center gap-3 px-4 lg:px-6 py-3">
-        <button className="inline-flex lg:hidden h-10 w-10 items-center justify-center rounded-xl border border-gray-200">
-          <span className="sr-only">Toggle sidebar</span>☰
-        </button>
-        <div className="relative flex-1 max-w-xl">
+      <div className="flex items-center gap-4 px-4 lg:px-6 py-3">
+        {/* Left side - Search (extended) */}
+        <div className="relative flex-1 max-w-none mr-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
-            ref={inputRef}
-            placeholder="Search or type command…"
-            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 pl-10 text-sm outline-none focus:ring-2 focus:ring-primary-500"
+            ref={searchRef}
+            type="text"
+            placeholder="Search stocks, portfolios..."
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
           />
-          <span className="absolute left-3 top-2.5 opacity-60">🔎</span>
-          <kbd className="absolute right-2 top-2 rounded border px-1.5 text-xs opacity-60">⌘K</kbd>
         </div>
         <button className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200">🌓</button>
         <button className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200">🔔</button>
@@ -38,5 +38,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }

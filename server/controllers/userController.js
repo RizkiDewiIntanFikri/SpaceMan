@@ -3,6 +3,24 @@ const { createToken, verifyToken } = require('../utilities/utils');
 
 
 class UserController {
+    static async checkUsername(req, res, next) {
+        try {
+            const { username } = req.body;
+            if (!username) {
+                return res.status(400).json({ error: "Username is required" });
+            }
+
+            const foundUser = await User.findOne({ where: { username } });
+            if (foundUser) {
+                return res.status(409).json({ error: "Username already exists" });
+            }
+
+            res.status(200).json({ message: "Username is available" });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async register(req, res, next) {
         const t = await sequelize.transaction();
         try {
