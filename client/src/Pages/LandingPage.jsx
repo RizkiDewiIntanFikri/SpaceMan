@@ -1,9 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useMarketStore, startMarketAutoTick } from "../stores/marketStore";
-import {
-  usePortfolioStore,
-  startPortfolioAutoRecalc,
-} from "../stores/portfolioStore";
+import { startPortfolioAutoRecalc } from "../stores/portfolioStore";
 import { startWatchlistEngine } from "../stores/watchlistStore";
 
 import StockCard from "../components/trading/StockCard";
@@ -14,21 +11,17 @@ import StockLine from "../components/charts/StockLine";
 import PortfolioArea from "../components/charts/PortfolioArea";
 
 import WatchlistTable from "../components/watchlist/WatchlistTable";
-import WatchlistAdd from "../components/watchlist/WatchlistAdd";
-import AlertsCard from "../components/watchlist/AlertsCard";
 import TrendingStocks from "../components/market/TrendingStocks";
 
-export default function Dashboard() {
+export default function LandingPage() {
   const stocks = useMarketStore((s) => s.featured);
-  usePortfolioStore((s) => s.totalValue);
-
   const [open, setOpen] = useState(false);
+
 
   useEffect(() => {
     const stopM = startMarketAutoTick(2000);
     const stopP = startPortfolioAutoRecalc();
     const stopW = startWatchlistEngine();
-
     return () => {
       stopM?.();
       stopP?.();
@@ -47,41 +40,40 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Charts + Portfolio summary */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-gray-200 bg-white p-3 xl:col-span-2">
-          <div className="flex items-center justify-between mb-2">
-            <div className="font-semibold">Stock Chart</div>
-            <button
-              className="rounded-xl border border-gray-200 px-3 py-1 text-sm"
-              onClick={() => setOpen(true)}
-            >
-              Buy/Sell
-            </button>
-          </div>
-          <StockLine />
+      {/* Stock Chart + Buy/Sell */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="font-semibold">Stock Chart</div>
+          <button
+            className="rounded-xl border border-gray-200 px-3 py-1 text-sm"
+            onClick={() => setOpen(true)}
+          >
+            Buy/Sell
+          </button>
         </div>
-        <PortfolioCard /> {/* props style dihapus */}
+        <StockLine />
       </div>
 
-      {/* Portfolio Performance + History */}
+      {/* Portfolio Performance + Trade History */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
         <div className="rounded-2xl border border-gray-200 bg-white p-3 xl:col-span-2">
           <div className="font-semibold mb-2">Portfolio</div>
           <PortfolioArea />
         </div>
-        <TradeTable /> {/* props style dihapus */}
+        <TradeTable />
       </div>
 
-      {/* Watchlist + Alerts + Trending */}
+      {/* Watchlist + Sidebar */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
+        {/* Watchlist kiri */}
         <div className="xl:col-span-2 space-y-3">
           <WatchlistTable />
         </div>
-        <div className="space-y-3">
-          <WatchlistAdd />
-          <AlertsCard />
+
+        {/* Sidebar kanan */}
+        <div className="space-y-3 xl:sticky xl:top-16">
           <TrendingStocks />
+          <PortfolioCard />
         </div>
       </div>
 

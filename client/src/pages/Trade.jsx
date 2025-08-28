@@ -100,17 +100,11 @@ export default function Trade() {
         </Card>
 
         <TradeTicket />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <OpenOrdersTable />
         <FillsTable />
         <Card>
           <div className="font-semibold text-gray-800 mb-3">Notes</div>
-          <p className="text-sm text-gray-600">
-            Limit orders will fill when the simulated price crosses your limit.
-            Market orders fill instantly at current price.
-          </p>
+          <p className="text-sm text-gray-600">Limit orders will fill when the simulated price crosses your limit. Market orders fill instantly at current price.</p>
         </Card>
       </div>
     </div>
