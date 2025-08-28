@@ -67,9 +67,12 @@ export default function StocksDashboard() {
         {(featuredStocks || []).slice(0, 4).map((s) => (
           <MetricCard
             key={s.symbol}
-            logo={s.symbol} // We can adjust this later
+            // Use the first letter of the symbol as a simple placeholder logo
+            logo={s.symbol.charAt(0)}
+            // Use the symbol for the title and subtitle since we don't have the full name here
             title={s.symbol}
-            subtitle={s.symbol} // We'll need to fetch the real name
+            subtitle={`Data for ${s.symbol}`}
+            // The price and changePercent from our real data map perfectly
             price={s.price}
             changePct={s.changePercent}
           />
