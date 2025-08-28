@@ -12,6 +12,7 @@ route.get('/trades', auth, TradingController.getHistory);
 route.post('/trades', auth, TradingController.placeOrder);
 route.get('/portfolio', auth, PortfolioController.getPortfolio);
 route.post("/register", UserController.register)
+route.post("/check-username", UserController.checkUsername)
 route.get("/stocks/:symbol", auth, StockController.getStockQuote)
 
 module.exports = route
