@@ -1,35 +1,128 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+//PALING UPDATE
+import { Routes, Route, Navigate, useNavigate } from "react-router";
+import Layout from "./layouts/Layout";
+import Dashboard from "./pages/Dashboard";
+import StocksDashboard from "./pages/StocksDashboard";
+import Portfolio from "./pages/Portfolio";
+import Leaderboard from "./pages/Leaderboard";
+import Trade from "./pages/Trade";
+import Chattbot from "./Pages/chattbot";
 
-function App() {
-  const [count, setCount] = useState(0)
+import Register from "./pages/Register";
+import LandingPage from "./pages/LandingPage";
+import { useEffect, useState } from "react";
+
+function AppContent() {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Check if user is already authenticated
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+
+    if (token && userData) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const handleRegisterSuccess = (data) => {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    setIsAuthenticated(true);
+    setUser(data.user);
+    navigate("/dashboard");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setIsAuthenticated(false);
+    setUser(null);
+    navigate("/");
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/register"
+        element={<Register onRegisterSuccess={handleRegisterSuccess} />}
+      />
+
+      {/* Protected routes - only show if authenticated */}
+      {isAuthenticated ? (
+        <Route
+          path="/dashboard"
+          element={
+            <Layout onLogout={handleLogout} user={user}>
+              <Dashboard />
+            </Layout>
+          }
+        />
+      ) : (
+        <Route path="/dashboard" element={<Navigate to="/" />} />
+      )}
+
+      {isAuthenticated ? (
+        <>
+          <Route
+            path="/stocks"
+            element={
+              <Layout onLogout={handleLogout} user={user}>
+                <StocksDashboard />
+              </Layout>
+            }
+          />
+          <Route
+            path="/portfolio"
+            element={
+              <Layout onLogout={handleLogout} user={user}>
+                <Portfolio />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/chatbot"
+            element={
+              <Layout onLogout={handleLogout} user={user}>
+                <Chattbot />
+              </Layout>
+            }
+          />
+          <Route
+            path="/leaderboard"
+            element={
+              <Layout onLogout={handleLogout} user={user}>
+                <Leaderboard />
+              </Layout>
+            }
+          />
+          <Route
+            path="/trade"
+            element={
+              <Layout onLogout={handleLogout} user={user}>
+                <Trade />
+              </Layout>
+            }
+          />
+        </>
+      ) : (
+        <>
+          <Route path="/stocks" element={<Navigate to="/" />} />
+          <Route path="/portfolio" element={<Navigate to="/" />} />
+          <Route path="/leaderboard" element={<Navigate to="/" />} />
+          <Route path="/trade" element={<Navigate to="/" />} />
+        </>
+      )}
+    </Routes>
+  );
 }
 
-export default App
+export default function App() {
+  return <AppContent />;
+}
