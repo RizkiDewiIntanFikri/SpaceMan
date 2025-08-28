@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 import WatchlistAdd from "../components/watchlist/WatchlistAdd"
 import WatchlistTable from "../components/watchlist/WatchlistTable"
-import AlertsCard from "../components/watchlist/AlertsCard"
 import { startMarketAutoTick } from "../stores/marketStore"
 import { startWatchlistEngine } from "../stores/watchlistStore"
 
@@ -22,10 +21,6 @@ export default function MyWatchlist() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="xl:col-span-2 space-y-4">
           <WatchlistTable />
-        </div>
-        <div className="space-y-4">
-          <WatchlistAdd />
-          <AlertsCard />
         </div>
       </div>
     </div>

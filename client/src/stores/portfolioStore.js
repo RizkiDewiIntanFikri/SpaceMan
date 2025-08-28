@@ -19,7 +19,9 @@ export const usePortfolioStore = create((set, get) => ({
     const totalValue = st.cashBalance + equity;
     const basis = 100000;
     const pnlPct = ((totalValue - basis) / basis) * 100;
+
     if (st.totalValue === totalValue && st.pnlPct === pnlPct) return; // guard
+
     set(prev => ({
       totalValue,
       pnlPct,
@@ -48,7 +50,7 @@ export const usePortfolioStore = create((set, get) => ({
   },
 }));
 
-// jadwalkan recalc ke rAF biar setelah commit
+// rAF scheduler
 let _rafId = 0;
 function scheduleRecalc() {
   if (_rafId) return;
@@ -59,7 +61,7 @@ function scheduleRecalc() {
   });
 }
 
-// subscribe aman ke perubahan harga
+// subscribe aman ke perubahan harga (ref-count)
 let _recalcUnsub = null;
 let _recalcRefs = 0;
 export function startPortfolioAutoRecalc() {
@@ -70,12 +72,13 @@ export function startPortfolioAutoRecalc() {
       s => s.featured?.map(f => [f.symbol, f.price]),
       () => scheduleRecalc()
     );
+    // console.log("[portfolio] subscribe started");
   }
   return () => {
     _recalcRefs = Math.max(0, _recalcRefs - 1);
     if (_recalcRefs === 0 && _recalcUnsub) {
-      _recalcUnsub();
-      _recalcUnsub = null;
+      _recalcUnsub(); _recalcUnsub = null;
+      // console.log("[portfolio] subscribe cleared");
     }
   };
 }
