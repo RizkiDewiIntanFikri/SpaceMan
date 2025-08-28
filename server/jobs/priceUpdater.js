@@ -5,7 +5,7 @@ const { LeaderboardService } = require("../services/leaderboardServices"); // Co
 
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 // You have correctly reduced the number of stocks to stay within limits
-const FEATURED_STOCKS = ['AAPL', 'GOOGL', 'AMZN'];
+const FEATURED_STOCKS = ['AAPL'];
 
 class PriceUpdater {
 
@@ -16,8 +16,8 @@ class PriceUpdater {
 
     start() {
         this.updatePrices();
-        this.interval = setInterval(() => this.updatePrices(), 15000);
-        console.log('Price updater job started (using Finnhub). Fetching every 30 seconds.');
+        this.interval = setInterval(() => this.updatePrices(), 1000);
+        console.log('Price updater job started (using Finnhub). Fetching every 15 seconds.');
     }
 
     async updatePrices() {
@@ -49,7 +49,7 @@ class PriceUpdater {
             } catch (error) {
                 console.error(`Failed to fetch price for ${symbol} from Finnhub:`, error.message);
                 console.log(error);
-                
+
             }
         }
 
