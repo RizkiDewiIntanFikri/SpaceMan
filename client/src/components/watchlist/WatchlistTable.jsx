@@ -7,6 +7,7 @@ import { useMarketStore } from "../../stores/marketStore";
 import { formatCurrency, fmtPct } from "../../utils/formatters";
 
 export default function WatchlistTable() {
+  //! CONNECT LATER
   // This part still uses the mock store. We can connect it later.
   const items = useWatchlistStore((s) => s.items);
   const remove = useWatchlistStore((s) => s.removeSymbol);
