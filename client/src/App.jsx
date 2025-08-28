@@ -1,86 +1,98 @@
-// src/App.jsx
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate, useNavigate } from 'react-router'
+import Layout from './layouts/Layout'
+import Dashboard from './pages/Dashboard'
+import StocksDashboard from "./pages/StocksDashboard";
+import Portfolio from './pages/Portfolio';
+import Leaderboard from './pages/Leaderboard';
+import Trade from './pages/Trade';
+import Register from './pages/Register';
+import LandingPage from './pages/LandingPage';
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 
-import Layout from "./layouts/Layout";
-import StocksDashboard from "./Pages/StocksDashboard";
-import Portfolio from "./Pages/Portfolio";
-import Leaderboard from "./Pages/Leaderboard";
-import Trade from "./pages/Trade";
-import Chattbot from "./Pages/chattbot";
-import LandingPage from "./Pages/LandingPage";
-
-export default function App() {
-  const [status, setStatus] = useState("Disconnected");
-  const [socketId, setSocketId] = useState(null);
-  const [aiMessages, setAiMessages] = useState([]);
+function AppContent() {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-
-    // Inisialisasi socket
-    const socket = io("http://localhost:3000", {
-      transports: ["websocket"],
-      reconnection: true,
-    });
-
-    // Saat connect
-    socket.on("connect", () => {
-      console.log("Connected to backend. Socket ID:", socket.id);
-      setStatus("Connected");
-      setSocketId(socket.id);
-
-      // Kirim JWT ke server lewat event "authenticate"
-      if (token) socket.emit("authenticate", token);
-    });
-
-    // Saat disconnect
-    socket.on("disconnect", (reason) => {
-      console.log("Disconnected from backend:", reason);
-      setStatus("Disconnected");
-    });
-
-    // Terima pesan AI
-    socket.on("aiMessage", (msg) => {
-      console.log("AI says:", msg);
-      setAiMessages((prev) => [...prev, msg]);
-    });
-
-    // Error handling socket
-    socket.on("connect_error", (err) => {
-      console.error("Socket connection error:", err.message);
-    });
-
-    // Bersihkan socket saat unmount
-    return () => {
-      socket.disconnect();
-    };
+    // Check if user is already authenticated
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(userData));
+    }
   }, []);
 
-  return (
-    <Layout>
-      {/* AI messages */}
-      {aiMessages.length > 0 && (
-        <div>
-          <h4>AI Messages:</h4>
-          <ul>
-            {aiMessages.map((msg, idx) => (
-              <li key={idx}>{msg}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+  const handleRegisterSuccess = (data) => {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    setIsAuthenticated(true);
+    setUser(data.user);
+    navigate('/dashboard');
+  };
 
-      <Routes>
-        <Route path="/" element={<Navigate to="/landing" />} />
-        <Route path="/landing" element={<LandingPage />} />
-        <Route path="/stocks" element={<StocksDashboard />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/trade" element={<Trade />} />
-        <Route path="/chatt" element={<Chattbot />} />
-      </Routes>
-    </Layout>
-  );
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setUser(null);
+    navigate('/');
+  };
+
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/register" element={<Register onRegisterSuccess={handleRegisterSuccess} />} />
+      
+      {/* Protected routes - only show if authenticated */}
+      {isAuthenticated ? (
+        <Route path="/dashboard" element={
+          <Layout onLogout={handleLogout} user={user}>
+            <Dashboard />
+          </Layout>
+        } />
+      ) : (
+        <Route path="/dashboard" element={<Navigate to="/" />} />
+      )}
+      
+      {isAuthenticated ? (
+        <>
+          <Route path="/stocks" element={
+            <Layout onLogout={handleLogout} user={user}>
+              <StocksDashboard />
+            </Layout>
+          } />
+          <Route path="/portfolio" element={
+            <Layout onLogout={handleLogout} user={user}>
+              <Portfolio />
+            </Layout>
+          } />
+          <Route path="/leaderboard" element={
+            <Layout onLogout={handleLogout} user={user}>
+              <Leaderboard />
+            </Layout>
+          } />
+          <Route path="/trade" element={
+            <Layout onLogout={handleLogout} user={user}>
+              <Trade />
+            </Layout>
+          } />
+        </>
+      ) : (
+        <>
+          <Route path="/stocks" element={<Navigate to="/" />} />
+          <Route path="/portfolio" element={<Navigate to="/" />} />
+          <Route path="/leaderboard" element={<Navigate to="/" />} />
+          <Route path="/trade" element={<Navigate to="/" />} />
+        </>
+      )}
+    </Routes>
+  )
+}
+
+export default function App() {
+  return <AppContent />;
 }
