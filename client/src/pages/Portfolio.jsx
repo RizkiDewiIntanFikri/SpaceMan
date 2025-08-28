@@ -14,11 +14,11 @@ import { usePortfolioStore } from "../stores/portfolioStore";
 import { formatCurrency } from "../utils/formatters";
 
 export default function Portfolio() {
-  // 3. GET the entire portfolio object and loading state from our real store
+  // 3. GET the entire portfolio object and loading state from our real store.
   const { portfolio, isLoading } = usePortfolioStore();
 
   const [range, setRange] = useState("Monthly");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);   
 
   // 4. REMOVE the useEffect that starts the mock data engines
   // useEffect(() => {
