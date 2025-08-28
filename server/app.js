@@ -79,8 +79,10 @@ io.on("connection", (socket) => {
 
 // price updater job
 const priceUpdaterJob = new PriceUpdater(io);
+
 if (process.env.RUN_PRICE_UPDATER === "true") {
   priceUpdaterJob.start();
+
 } else {
   console.log(
     "Price updater job is disabled. Set RUN_PRICE_UPDATER=true in .env to enable."
