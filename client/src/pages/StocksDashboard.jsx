@@ -13,35 +13,25 @@ import PortfolioAreaChart from "../components/charts/PortfolioAreaChart";
 import DividendBarChart from "../components/charts/DividendBarChart";
 import WatchlistTable from "../components/watchlist/WatchlistTable";
 import TrendingStocks from "../components/market/TrendingStocks";
-import BuySellModal from "../components/trading/BuySellModal"; // Import the missing modal
+import BuySellModal from "../components/trading/BuySellModal";
 import { formatCurrency } from "../utils/formatters";
 
 export default function StocksDashboard() {
-  // State for controlling the trading modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSymbol, setSelectedSymbol] = useState(null);
 
-  // Get live data from our backend-connected stores
+ 
   const featuredStocks = useMarketStore((s) => s.featuredStocks);
   const portfolio = usePortfolioStore((s) => s.portfolio);
-
-  // Get data fetching actions from stores
   const fetchPortfolio = usePortfolioStore((state) => state.fetchPortfolio);
 
-  // State for the chart range selector
   const [range, setRange] = useState("Monthly");
 
-  // Fetch initial data when the component loads
   useEffect(() => {
+    // Fetch the user's portfolio once when the page loads.
+    // The market data will arrive automatically via the socket.
     fetchPortfolio();
   }, [fetchPortfolio]);
-
-  // Memoized data for charts
-  const areaData = useMemo(() => {
-    const perfSeries = portfolio?.performance || [];
-    const arr = (perfSeries.length ? perfSeries : []).slice(-30);
-    return arr.map((y, i) => ({ name: i + 1, value: Math.max(0, y) }));
-  }, [portfolio]);
 
   const dividendData = useMemo(
     () => [
@@ -55,7 +45,6 @@ export default function StocksDashboard() {
     []
   );
 
-  // Function to open the trading modal with the correct stock
   const handleOpenModal = (symbol) => {
     setSelectedSymbol(symbol);
     setIsModalOpen(true);
@@ -65,23 +54,32 @@ export default function StocksDashboard() {
     <div className="px-4 sm:px-6 lg:px-8 py-6 bg-gray-50 min-h-screen">
       {/* Metric cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        {(featuredStocks || []).slice(0, 4).map((s) => (
-          // Add onClick to open the modal when a card is clicked
-          <div
-            key={s.symbol}
-            onClick={() => handleOpenModal(s.symbol)}
-            className="cursor-pointer"
-          >
-            <MetricCard
-              logo={s.symbol.charAt(0)}
-              title={s.symbol}
-              subtitle={`Data for ${s.symbol}`}
-              price={s.price}
-              changePct={s.changePercent}
-            />
+        {/* 2. Add a loading/empty state for a better user experience */}
+        {featuredStocks && featuredStocks.length > 0 ? (
+          featuredStocks.slice(0, 4).map((s) => (
+            <div
+              key={s.symbol}
+              onClick={() => handleOpenModal(s.symbol)}
+              className="cursor-pointer"
+            >
+              <MetricCard
+                logo={s.symbol.charAt(0)}
+                title={s.symbol}
+                subtitle={`Data for ${s.symbol}`}
+                price={s.price}
+                changePct={s.changePercent}
+              />
+            </div>
+          ))
+        ) : (
+          // Show a placeholder while waiting for the first socket event
+          <div className="col-span-full text-center text-gray-500 py-8">
+            Connecting to live market data...
           </div>
-        ))}
+        )}
       </div>
+
+      {/* ... The rest of your JSX remains the same ... */}
 
       {/* Performance + Dividend Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
@@ -92,7 +90,7 @@ export default function StocksDashboard() {
             active={range}
             onChange={setRange}
           />
-          <PortfolioAreaChart data={areaData} />
+          <PortfolioAreaChart />
         </Card>
         <div className="space-y-4">
           <Card>
@@ -154,7 +152,6 @@ export default function StocksDashboard() {
         </Card>
       </div>
 
-      {/* RENDER THE MODAL HERE */}
       <BuySellModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}

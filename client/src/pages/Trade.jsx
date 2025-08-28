@@ -1,11 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react"; // 1. Import useState
 import Card from "../components/ui/Card";
 import TradeTicket from "../components/trade/TradeTicket";
 import OpenOrdersTable from "../components/trade/OpenOrdersTable";
 import FillsTable from "../components/trade/FillsTable";
-import { useMarketStore, startMarketAutoTick } from "../stores/marketStore";
-import { startPortfolioAutoRecalc } from "../stores/portfolioStore";
-import { startTradeEngine } from "../stores/tradeStore";
+import { useMarketStore } from "../stores/marketStore";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -17,27 +15,30 @@ import {
 } from "recharts";
 
 export default function Trade() {
-  const selected = useMarketStore((s) => s.selectedSymbol);
-  const series = useMarketStore((s) => s.series);
-  const featured = useMarketStore((s) => s.featured);
+  const featuredStocks = useMarketStore((s) => s.featuredStocks);
 
-  const data = useMemo(() => {
-    const arr = series?.[selected] || [];
-    return arr.slice(-60).map((v, i) => ({ name: i + 1, value: v }));
-  }, [series, selected]);
+  // 2. The selectedSymbol state now lives here in the parent page.
+  const [selectedSymbol, setSelectedSymbol] = useState("AAPL");
 
-  const current = featured?.find((f) => f.symbol === selected)?.price ?? 0;
-
+  // Set a default symbol when the stock list loads
   useEffect(() => {
-    const stopM = startMarketAutoTick(2000);
-    const stopP = startPortfolioAutoRecalc();
-    const stopT = startTradeEngine();
-    return () => {
-      stopM?.();
-      stopP?.();
-      stopT?.();
-    };
-  }, []);
+    if (featuredStocks && featuredStocks.length > 0) {
+      setSelectedSymbol(featuredStocks[0].symbol);
+    }
+  }, [featuredStocks]);
+
+  // The chart data will now be based on the selectedSymbol state
+  const seriesData = useMemo(() => {
+    // We'll keep using mock data for the chart for now
+    const arr = Array.from(
+      { length: 60 },
+      () => 100 + Math.random() * (selectedSymbol.length * 5)
+    );
+    return arr.map((v, i) => ({ name: i + 1, value: v }));
+  }, [selectedSymbol]);
+
+  const currentPrice =
+    featuredStocks?.find((f) => f.symbol === selectedSymbol)?.price ?? 0;
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 bg-gray-50 min-h-screen space-y-6">
@@ -49,19 +50,21 @@ export default function Trade() {
           </p>
         </div>
       </div>
-
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <Card className="xl:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <div className="font-semibold text-gray-800">
-              Price — {selected}
+              {/* The chart title is now dynamic */}
+              Price — {selectedSymbol}
             </div>
-            <div className="text-2xl font-semibold">${current.toFixed(2)}</div>
+            <div className="text-2xl font-semibold">
+              ${currentPrice.toFixed(2)}
+            </div>
           </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={data}
+                data={seriesData}
                 margin={{ top: 5, right: 10, left: 0, bottom: 0 }}
               >
                 <defs>
@@ -99,12 +102,19 @@ export default function Trade() {
           </div>
         </Card>
 
-        <TradeTicket />
+        {/* 3. Pass the state and the setter function down to the TradeTicket */}
+        <TradeTicket
+          selectedSymbol={selectedSymbol}
+          onSymbolChange={setSelectedSymbol}
+        />
+
         <OpenOrdersTable />
         <FillsTable />
         <Card>
           <div className="font-semibold text-gray-800 mb-3">Notes</div>
-          <p className="text-sm text-gray-600">Limit orders will fill when the simulated price crosses your limit. Market orders fill instantly at current price.</p>
+          <p className="text-sm text-gray-600">
+            Market orders fill instantly at current price.
+          </p>
         </Card>
       </div>
     </div>
