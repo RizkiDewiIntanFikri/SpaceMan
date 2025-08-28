@@ -22,9 +22,6 @@ export default function MyWatchlist() {
         <div className="xl:col-span-2 space-y-4">
           <WatchlistTable />
         </div>
-        <div className="space-y-4">
-          <WatchlistAdd />
-        </div>
       </div>
     </div>
   )
