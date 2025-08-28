@@ -1,48 +1,140 @@
-import { useEffect, useState } from 'react'
-import { useMarketStore } from '../../stores/marketStore'
-import { usePortfolioStore } from '../../stores/portfolioStore'
+import { useEffect, useState } from "react";
+// 1. Import the REAL apiService function and portfolio store
+import { placeTrade } from "../../services/apiService";
+import { usePortfolioStore } from "../../stores/portfolioStore";
+import { useMarketStore } from "../../stores/marketStore";
 
-export default function BuySellModal({ open, onClose }) {
-  const selected = useMarketStore(s => s.selectedSymbol)
-  const price = useMarketStore(s => s.getPrice(selected))
-  const placeTrade = usePortfolioStore(s => s.placeTrade)
+// 2. The component now needs to be told which symbol to trade via props
+export default function BuySellModal({ open, onClose, symbol }) {
+  // Get the latest price for the selected symbol from our real marketStore
+  const getPrice = useMarketStore((s) => {
+    const stock = s.featuredStocks.find((f) => f.symbol === symbol);
+    return stock ? stock.price : null;
+  });
+  const price = getPrice;
 
-  const [side, setSide] = useState('BUY')
-  const [qty, setQty] = useState(10)
+  // Get the action to manually refresh the portfolio after a trade
+  const fetchPortfolio = usePortfolioStore((s) => s.fetchPortfolio);
 
+  const [side, setSide] = useState("BUY");
+  const [qty, setQty] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  // Reset the form state whenever the modal is opened
   useEffect(() => {
-    if (open) { setSide('BUY'); setQty(10) }
-  }, [open])
+    if (open) {
+      setSide("BUY");
+      setQty(1);
+      setError("");
+      setSuccess("");
+    }
+  }, [open]);
 
-  if (!open) return null
+  if (!open) return null;
 
-  const confirm = () => {
-    placeTrade({ symbol: selected, side, qty, price })
-    onClose()
-  }
+  const handleConfirm = async () => {
+    if (!symbol || !qty || qty <= 0) {
+      setError("Please enter a valid quantity.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      // 3. Call the REAL backend API
+      await placeTrade({ symbol, quantity: qty, type: side });
+      setSuccess(`Trade successful!`);
+      // Manually refresh portfolio data as a fallback to the socket
+      fetchPortfolio();
+      // Close the modal after a short delay to show the success message
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (err) {
+      setError(err.response?.data?.error || "An error occurred.");
+      setIsLoading(false);
+    }
+    // Don't set isLoading to false on success, as the modal will close
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-4 shadow-lg">
-        <div className="font-semibold mb-3">New Order</div>
+        <div className="font-semibold mb-3 text-lg">New Order: {symbol}</div>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <button className={'rounded-xl px-3 py-2 border ' + (side==='BUY'?'bg-success-50 border-success-200 text-success-700':'border-gray-200')} onClick={()=>setSide('BUY')}>Buy</button>
-            <button className={'rounded-xl px-3 py-2 border ' + (side==='SELL'?'bg-danger-50 border-danger-200 text-danger-700':'border-gray-200')} onClick={()=>setSide('SELL')}>Sell</button>
+            <button
+              className={
+                "rounded-xl px-3 py-2 border " +
+                (side === "BUY"
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                  : "border-gray-200")
+              }
+              onClick={() => setSide("BUY")}
+            >
+              Buy
+            </button>
+            <button
+              className={
+                "rounded-xl px-3 py-2 border " +
+                (side === "SELL"
+                  ? "bg-rose-50 border-rose-200 text-rose-700"
+                  : "border-gray-200")
+              }
+              onClick={() => setSide("SELL")}
+            >
+              Sell
+            </button>
           </div>
-          <div className="text-sm">Symbol: <span className="font-medium">{selected}</span></div>
-          <div className="text-sm">Price: <span className="font-medium">${price?.toFixed(2)}</span></div>
+          <div className="text-sm">
+            Market Price:{" "}
+            <span className="font-medium">
+              {price ? `$${price.toFixed(2)}` : "Loading..."}
+            </span>
+          </div>
           <div className="text-sm grid grid-cols-2 gap-2 items-center">
             <label>Quantity</label>
-            <input type="number" min="1" value={qty} onChange={e=>setQty(+e.target.value)} className="rounded-lg border border-gray-200 px-3 py-2" />
+            <input
+              type="number"
+              min="1"
+              value={qty}
+              onChange={(e) => setQty(Math.max(1, +e.target.value))}
+              className="rounded-lg border border-gray-200 px-3 py-2"
+            />
           </div>
+          <div className="text-sm">
+            Estimated Total:{" "}
+            <span className="font-medium">
+              {price ? `$${(price * qty).toFixed(2)}` : "..."}
+            </span>
+          </div>
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {success && (
+            <p className="text-green-500 text-sm text-center">{success}</p>
+          )}
+
           <div className="flex gap-2 pt-1">
-            <button onClick={confirm} className="px-3 py-2 rounded-xl bg-primary-600 text-white">Confirm</button>
-            <button onClick={onClose} className="px-3 py-2 rounded-xl border border-gray-200">Cancel</button>
+            <button
+              onClick={handleConfirm}
+              disabled={isLoading}
+              className="px-3 py-2 rounded-xl bg-indigo-600 text-white disabled:bg-gray-400"
+            >
+              {isLoading ? "Processing..." : "Confirm"}
+            </button>
+            <button
+              onClick={onClose}
+              className="px-3 py-2 rounded-xl border border-gray-200"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

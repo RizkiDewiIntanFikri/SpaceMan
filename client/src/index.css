@@ -1,4 +1,29 @@
 @import "tailwindcss";
 
 /* Light mode only - no dark mode support */
-        
+
+@keyframes flash-green {
+  0%,
+  100% {
+    color: inherit;
+  }
+  50% {
+    color: #34d399;
+  } /* Tailwind's green-400 */
+}
+@keyframes flash-red {
+  0%,
+  100% {
+    color: inherit;
+  }
+  50% {
+    color: #f87171;
+  } /* Tailwind's red-400 */
+}
+
+.flash-green {
+  animation: flash-green 0.6s ease-out;
+}
+.flash-red {
+  animation: flash-red 0.6s ease-out;
+}

@@ -1,83 +1,64 @@
-import { useEffect, useState, useMemo } from "react";
-import { useMarketStore, startMarketAutoTick } from "../stores/marketStore";
-import { startPortfolioAutoRecalc } from "../stores/portfolioStore";
-import { startWatchlistEngine } from "../stores/watchlistStore";
-
-import StockCard from "../components/trading/StockCard";
-import PortfolioCard from "../components/trading/PortfolioCard";
-import TradeTable from "../components/trading/TradeTable";
-import BuySellModal from "../components/trading/BuySellModal";
-import StockLine from "../components/charts/StockLine";
-import PortfolioArea from "../components/charts/PortfolioArea";
-
-import WatchlistTable from "../components/watchlist/WatchlistTable";
-import TrendingStocks from "../components/market/TrendingStocks";
+import React, { useState } from "react";
+import { useNavigate } from "react-router";
+import { useUserStore } from "../stores/userStore";
 
 export default function LandingPage() {
-  const stocks = useMarketStore((s) => s.featured);
-  const [open, setOpen] = useState(false);
+  const [username, setUsername] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const register = useUserStore((state) => state.register);
+  const navigate = useNavigate();
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!username.trim()) {
+      setError("Username cannot be empty.");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
 
-  useEffect(() => {
-    const stopM = startMarketAutoTick(2000);
-    const stopP = startPortfolioAutoRecalc();
-    const stopW = startWatchlistEngine();
-    return () => {
-      stopM?.();
-      stopP?.();
-      stopW?.();
-    };
-  }, []);
+    const result = await register(username);
 
-  const topStocks = useMemo(() => (stocks || []).slice(0, 5), [stocks]);
+    if (result.success) {
+      navigate("/stocks"); // Navigate to the main dashboard on success
+    } else {
+      setIsLoading(false);
+      setError(result.message);
+    }
+  };
 
   return (
-    <div className="px-3 sm:px-4 lg:px-6 py-4 space-y-5">
-      {/* Top Stocks */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
-        {topStocks.map((s) => (
-          <StockCard key={s.symbol} stock={s} />
-        ))}
-      </div>
-
-      {/* Stock Chart + Buy/Sell */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-3">
-        <div className="flex items-center justify-between mb-2">
-          <div className="font-semibold">Stock Chart</div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-900 p-4">
+      <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        <h1 className="text-3xl font-bold mb-2 text-center text-white">
+          Live Trading Simulator
+        </h1>
+        <p className="text-gray-400 mb-6 text-center">
+          Enter a username to start with $100,000.
+        </p>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              placeholder="Choose your trader name"
+            />
+          </div>
+          {error && (
+            <p className="text-red-400 text-sm text-center mb-4">{error}</p>
+          )}
           <button
-            className="rounded-xl border border-gray-200 px-3 py-1 text-sm"
-            onClick={() => setOpen(true)}
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-gray-500"
           >
-            Buy/Sell
+            {isLoading ? "Joining..." : "Start Trading"}
           </button>
-        </div>
-        <StockLine />
+        </form>
       </div>
-
-      {/* Portfolio Performance + Trade History */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-gray-200 bg-white p-3 xl:col-span-2">
-          <div className="font-semibold mb-2">Portfolio</div>
-          <PortfolioArea />
-        </div>
-        <TradeTable />
-      </div>
-
-      {/* Watchlist + Sidebar */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
-        {/* Watchlist kiri */}
-        <div className="xl:col-span-2 space-y-3">
-          <WatchlistTable />
-        </div>
-
-        {/* Sidebar kanan */}
-        <div className="space-y-3 xl:sticky xl:top-16">
-          <TrendingStocks />
-          <PortfolioCard />
-        </div>
-      </div>
-
-      <BuySellModal open={open} onClose={() => setOpen(false)} />
     </div>
   );
 }

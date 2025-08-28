@@ -1,39 +1,69 @@
-import { usePortfolioStore } from '../../stores/portfolioStore'
-import { formatCurrency } from '../../utils/formatters'
+import React from "react";
+import Card from "../ui/Card";
+import { usePortfolioStore } from "../../stores/portfolioStore";
+import { formatCurrency } from "../../utils/formatters";
 
 export default function TradeTable() {
-  const txs = usePortfolioStore(s => s.transactions)
+  const { tradeHistory, isLoading } = usePortfolioStore();
+  const formatDate = (dateString) => new Date(dateString).toLocaleString();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <div className="font-semibold text-gray-800 mb-2">Recent Trades</div>
+        <p className="text-sm text-gray-500 text-center py-4">
+          Loading trade history...
+        </p>
+      </Card>
+    );
+  }
+
+  if (!tradeHistory || tradeHistory.length === 0) {
+    return (
+      <Card>
+        <div className="font-semibold text-gray-800 mb-2">Recent Trades</div>
+        <p className="text-sm text-gray-500 text-center py-4">
+          No trades have been executed yet.
+        </p>
+      </Card>
+    );
+  }
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-      <div className="px-4 py-3 font-semibold border-b border-gray-100">Trade History</div>
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-gray-500">
-          <tr>
-            <th className="text-left px-4 py-2">Time</th>
-            <th className="text-left px-4 py-2">Symbol</th>
-            <th className="text-left px-4 py-2">Side</th>
-            <th className="text-right px-4 py-2">Qty</th>
-            <th className="text-right px-4 py-2">Price</th>
-            <th className="text-right px-4 py-2">Value</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y">
-          {txs.map(tx => (
-            <tr key={tx.id} className="odd:bg-white even:bg-gray-50/50">
-              <td className="px-4 py-2">{new Date(tx.time).toLocaleString()}</td>
-              <td className="px-4 py-2">{tx.symbol}</td>
-              <td className={"px-4 py-2 " + (tx.side==='BUY'?'text-success-600':'text-danger-600')}>{tx.side}</td>
-              <td className="px-4 py-2 text-right">{tx.qty}</td>
-              <td className="px-4 py-2 text-right">{formatCurrency(tx.price)}</td>
-              <td className="px-4 py-2 text-right">{formatCurrency(tx.qty*tx.price)}</td>
+    <Card>
+      <div className="font-semibold text-gray-800 mb-2">Recent Trades</div>
+      <div className="max-h-[400px] overflow-y-auto">
+        <table className="min-w-full text-sm">
+          <thead className="text-left text-gray-500">
+            <tr>
+              <th className="p-2 font-medium">Symbol</th>
+              <th className="p-2 font-medium">Type</th>
+              <th className="p-2 font-medium">Quantity</th>
+              <th className="p-2 font-medium">Price</th>
+              <th className="p-2 font-medium">Date</th>
             </tr>
-          ))}
-          {txs.length===0 && (
-            <tr><td colSpan="6" className="px-4 py-6 text-center text-gray-400">No trades yet</td></tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  )
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {tradeHistory.map((trade) => (
+              <tr key={trade.id}>
+                <td className="p-2 font-semibold">{trade.symbol}</td>
+                <td
+                  className={`p-2 font-semibold ${
+                    trade.type === "BUY" ? "text-emerald-600" : "text-rose-600"
+                  }`}
+                >
+                  {trade.type}
+                </td>
+                <td className="p-2">{trade.quantity}</td>
+                <td className="p-2">{formatCurrency(trade.price)}</td>
+                <td className="p-2 text-xs text-gray-500">
+                  {formatDate(trade.timestamp)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
 }
