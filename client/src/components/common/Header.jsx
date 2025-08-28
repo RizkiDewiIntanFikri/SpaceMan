@@ -31,6 +31,8 @@ export default function Header() {
         </div>
         <button className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200">🌓</button>
         <button className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200">🔔</button>
+
+
         <div className="ml-1 h-10 w-10 overflow-hidden rounded-full border border-gray-200">
           <img alt="avatar" src="https://i.pravatar.cc/100?img=18" className="h-full w-full object-cover" />
         </div>

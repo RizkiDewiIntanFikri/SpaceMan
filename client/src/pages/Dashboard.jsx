@@ -29,28 +29,24 @@ export default function Dashboard() {
   const topStocks = useMemo(() => (stocks || []).slice(0, 5), [stocks])
 
   return (
-    // lebih mepet: kecilkan padding & gap
     <div className="px-3 sm:px-4 lg:px-6 py-4 space-y-5">
       {/* Top Stocks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
         {topStocks.map(s => <StockCard key={s.symbol} stock={s} />)}
       </div>
 
-      {/* Charts + Portfolio summary */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-gray-200 bg-white p-3 xl:col-span-2">
-          <div className="flex items-center justify-between mb-2">
-            <div className="font-semibold">Stock Chart</div>
-            <button
-              className="rounded-xl border border-gray-200 px-3 py-1 text-sm"
-              onClick={() => setOpen(true)}
-            >
-              Buy/Sell
-            </button>
-          </div>
-          <StockLine />
+      {/* Stock Chart (full width) */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="font-semibold">Stock Chart</div>
+          <button
+            className="rounded-xl border border-gray-200 px-3 py-1 text-sm"
+            onClick={() => setOpen(true)}
+          >
+            Buy/Sell
+          </button>
         </div>
-        <PortfolioCard />
+        <StockLine />
       </div>
 
       {/* Portfolio Performance + History */}
@@ -62,15 +58,21 @@ export default function Dashboard() {
         <TradeTable />
       </div>
 
-      {/* Watchlist + Alerts + Trending */}
+      {/* Watchlist kiri, Sidebar kanan (Trending + Portfolio Summary + Add) */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
         <div className="xl:col-span-2 space-y-3">
           <WatchlistTable />
         </div>
-        <div className="space-y-3">
-          <WatchlistAdd />
+
+        <div className="space-y-3 xl:sticky xl:top-16">
           <TrendingStocks />
+          <PortfolioCard /> 
         </div>
+      </div>
+
+      <div className="space-y-3">
+          <TrendingStocks />
+          <PortfolioCard /> 
       </div>
 
       <BuySellModal open={open} onClose={() => setOpen(false)} />

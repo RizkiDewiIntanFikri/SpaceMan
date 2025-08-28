@@ -14,7 +14,6 @@ export default function PortfolioCard() {
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4">
-      <div className="font-semibold mb-4">Portfolio Summary</div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <div className="text-xs text-gray-500">Cash Balance</div>

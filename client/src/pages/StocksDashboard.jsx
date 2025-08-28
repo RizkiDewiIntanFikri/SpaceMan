@@ -7,7 +7,6 @@ import { startWatchlistEngine } from "../stores/watchlistStore";
 
 import Card from "../components/ui/Card";
 import SectionHeader from "../components/ui/SectionHeader";
-import WatchItem from "../components/ui/WatchItem";
 import MetricCard from "../components/metrics/MetricCard";
 import PortfolioAreaChart from "../components/charts/PortfolioAreaChart";
 import DividendBarChart from "../components/charts/DividendBarChart";
@@ -54,7 +53,7 @@ export default function StocksDashboard() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <button className="lg:hidden ui-iconbtn">☰</button>
-          <div className="relative w-72 max-w-[60vw]">
+          {/* <div className="relative w-72 max-w-[60vw]">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <Search className="h-4 w-4 text-gray-400" />
             </div>
@@ -62,13 +61,13 @@ export default function StocksDashboard() {
               placeholder="Search or type command…"
               className="ui-search"
             />
-          </div>
+          </div> */}
         </div>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <button className="ui-iconbtn"><Moon className="h-4 w-4" /></button>
           <button className="ui-iconbtn"><Bell className="h-4 w-4" /></button>
           <img src="https://i.pravatar.cc/40?img=13" alt="avatar" className="h-9 w-9 rounded-full" />
-        </div>
+        </div> */}
       </div>
 
       {/* Metric cards */}
@@ -119,7 +118,6 @@ export default function StocksDashboard() {
       {/* Bottom summary cards */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-6">
         <Card className="xl:col-span-1">
-          <div className="font-semibold text-gray-800 mb-2">Portfolio Summary</div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-xs text-gray-500">Cash Balance</div>
