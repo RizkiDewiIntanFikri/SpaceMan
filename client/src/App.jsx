@@ -6,6 +6,8 @@ import StocksDashboard from "./pages/StocksDashboard";
 import Portfolio from "./pages/Portfolio";
 import Leaderboard from "./pages/Leaderboard";
 import Trade from "./pages/Trade";
+import Chattbot from "./Pages/chattbot";
+
 import Register from "./pages/Register";
 import LandingPage from "./pages/LandingPage";
 import { useEffect, useState } from "react";
@@ -80,6 +82,15 @@ function AppContent() {
             element={
               <Layout onLogout={handleLogout} user={user}>
                 <Portfolio />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/chatbot"
+            element={
+              <Layout onLogout={handleLogout} user={user}>
+                <Chattbot />
               </Layout>
             }
           />
