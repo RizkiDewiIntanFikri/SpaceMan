@@ -1,6 +1,6 @@
-import React from 'react'
-import Sidebar from '../components/common/Sidebar'
-import Header from '../components/common/Header'
+import React from "react";
+import Sidebar from "../components/common/Sidebar";
+import Header from "../components/common/Header";
 
 export default function Layout({ children, onLogout, user }) {
   return (
@@ -11,5 +11,5 @@ export default function Layout({ children, onLogout, user }) {
         <main className="p-6 lg:p-8">{children}</main>
       </div>
     </div>
-  )
+  );
 }

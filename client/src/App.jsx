@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate, useNavigate } from 'react-router'
 import Layout from './layouts/Layout'
 import Dashboard from './pages/Dashboard'

@@ -68,5 +68,5 @@ export default function Header({ onLogout, user }) {
         </div>
       </div>
     </header>
-  )
+  );
 }

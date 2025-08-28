@@ -22,6 +22,7 @@ export default function Sidebar() {
   const location = useLocation()
 
   return (
+
     <div className="w-64 bg-white border-r border-gray-200 p-6">
       {/* Logo */}
       <div className="mb-8">
@@ -52,4 +53,5 @@ export default function Sidebar() {
       </nav>
     </div>
   )
+
 }
