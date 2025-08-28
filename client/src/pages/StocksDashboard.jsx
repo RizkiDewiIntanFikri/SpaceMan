@@ -1,85 +1,77 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Search, Bell, Moon, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
-import { useMarketStore, startMarketAutoTick } from "../stores/marketStore";
-import { usePortfolioStore, startPortfolioAutoRecalc } from "../stores/portfolioStore";
-import { startWatchlistEngine } from "../stores/watchlistStore";
+// 1. REMOVE the old mock data imports
+// import { useMarketStore, startMarketAutoTick } from "../stores/marketStore";
+// import { usePortfolioStore, startPortfolioAutoRecalc } from "../stores/portfolioStore";
+// import { startWatchlistEngine } from "../stores/watchlistStore";
+
+// 2. IMPORT the real data stores
+import { useMarketStore } from "../stores/marketStore";
+import { usePortfolioStore } from "../stores/portfolioStore";
+// We might need the leaderboard store here as well if we add it to this page
+// import { useLeaderboardStore } from "../stores/leaderboardStore";
 
 import Card from "../components/ui/Card";
 import SectionHeader from "../components/ui/SectionHeader";
 import MetricCard from "../components/metrics/MetricCard";
 import PortfolioAreaChart from "../components/charts/PortfolioAreaChart";
 import DividendBarChart from "../components/charts/DividendBarChart";
-
 import WatchlistTable from "../components/watchlist/WatchlistTable";
 import TrendingStocks from "../components/market/TrendingStocks";
-
 import { formatCurrency } from "../utils/formatters";
 
 export default function StocksDashboard() {
-  // Market cards
-  const featured = useMarketStore((s) => s.featured);
+  // 3. UPDATE the state selectors to match our real stores
+  const featuredStocks = useMarketStore((s) => s.featuredStocks);
+  const portfolio = usePortfolioStore((s) => s.portfolio);
+  const perfSeries = portfolio?.performance || []; // Get performance data safely
 
-  // Portfolio numbers (primitive selectors)
-  const cashBalance = usePortfolioStore((s) => s.cashBalance);
-  const totalValue  = usePortfolioStore((s) => s.totalValue);
-  const pnlPct      = usePortfolioStore((s) => s.pnlPct);
-  const perfSeries  = usePortfolioStore((s) => s.performance);
+  // Get the data fetching actions from our stores
+  const fetchPortfolio = usePortfolioStore((state) => state.fetchPortfolio);
+  // We may also need fetchLeaderboard if we add it here
+  // const fetchLeaderboard = useLeaderboardStore((state) => state.fetchLeaderboard);
 
   const [range, setRange] = useState("Monthly");
 
-  // start all engines needed on dashboard
+  // 4. REPLACE the old useEffect with one that fetches REAL data
   useEffect(() => {
-    const stopM = startMarketAutoTick(2000);
-    const stopP = startPortfolioAutoRecalc();
-    const stopW = startWatchlistEngine();
-    return () => { stopM?.(); stopP?.(); stopW?.(); };
-  }, []);
+    // When this dashboard loads, fetch the initial portfolio state.
+    // The live market data will come in via the socket automatically.
+    fetchPortfolio();
+    // fetchLeaderboard(); // Uncomment if you add the leaderboard to this page
+  }, [fetchPortfolio]); // Dependency array
 
-  // chart data
+  // chart data (this can largely stay the same)
   const areaData = useMemo(() => {
-    const arr = (perfSeries?.length ? perfSeries : Array.from({ length: 30 }, (_, i) => 30000 + i * 180 + (Math.random() - 0.5) * 600)).slice(-30);
+    const arr = (perfSeries?.length ? perfSeries : []).slice(-30);
     return arr.map((y, i) => ({ name: i + 1, value: Math.max(0, y) }));
   }, [perfSeries]);
 
   const dividendData = [
-    { name: "Jan", value: 150 }, { name: "Feb", value: 380 }, { name: "Mar", value: 120 },
-    { name: "Apr", value: 300 }, { name: "May", value: 180 }, { name: "Jun", value: 220 },
+    { name: "Jan", value: 150 },
+    { name: "Feb", value: 380 },
+    { name: "Mar", value: 120 },
+    { name: "Apr", value: 300 },
+    { name: "May", value: 180 },
+    { name: "Jun", value: 220 },
   ];
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 bg-gray-50 min-h-screen">
-      {/* Top bar */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <button className="lg:hidden ui-iconbtn">☰</button>
-          {/* <div className="relative w-72 max-w-[60vw]">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="h-4 w-4 text-gray-400" />
-            </div>
-            <input
-              placeholder="Search or type command…"
-              className="ui-search"
-            />
-          </div> */}
-        </div>
-        {/* <div className="flex items-center gap-2">
-          <button className="ui-iconbtn"><Moon className="h-4 w-4" /></button>
-          <button className="ui-iconbtn"><Bell className="h-4 w-4" /></button>
-          <img src="https://i.pravatar.cc/40?img=13" alt="avatar" className="h-9 w-9 rounded-full" />
-        </div> */}
-      </div>
+      {/* Top bar can stay the same */}
+      <div className="flex items-center justify-between mb-6">{/* ... */}</div>
 
       {/* Metric cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        {(featured || []).slice(0, 4).map((s) => (
+        {(featuredStocks || []).slice(0, 4).map((s) => (
           <MetricCard
             key={s.symbol}
-            logo={s.logo}
-            title={s.name}
-            subtitle={s.name}
+            logo={s.symbol} // We can adjust this later
+            title={s.symbol}
+            subtitle={s.symbol} // We'll need to fetch the real name
             price={s.price}
-            changePct={s.changePct}
+            changePct={s.changePercent}
           />
         ))}
       </div>
@@ -87,15 +79,21 @@ export default function StocksDashboard() {
       {/* Performance + Dividend (atas) */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <Card className="xl:col-span-2">
-          <SectionHeader title="Portfolio Performance" tabs={["Monthly", "Quarterly", "Annually"]} active={range} onChange={setRange} />
+          <SectionHeader
+            title="Portfolio Performance"
+            tabs={["Monthly", "Quarterly", "Annually"]}
+            active={range}
+            onChange={setRange}
+          />
           <PortfolioAreaChart data={areaData} />
         </Card>
-
         <div className="space-y-4">
           <Card>
             <div className="flex items-center justify-between mb-3">
               <div className="font-semibold text-gray-800">Dividend</div>
-              <button className="text-gray-500 text-sm inline-flex items-center gap-1">Details <ChevronRight className="h-4 w-4" /></button>
+              <button className="text-gray-500 text-sm inline-flex items-center gap-1">
+                Details <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
             <DividendBarChart data={dividendData} />
           </Card>
@@ -104,12 +102,9 @@ export default function StocksDashboard() {
 
       {/* Watchlist + Trending (bawah) */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-6">
-        {/* My Watchlist table lebar */}
         <div className="xl:col-span-2 space-y-4">
           <WatchlistTable />
         </div>
-
-        {/* Sisi kanan: Add + Alerts + Trending */}
         <div className="space-y-4">
           <TrendingStocks />
         </div>
@@ -121,16 +116,25 @@ export default function StocksDashboard() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-xs text-gray-500">Cash Balance</div>
-              <div className="text-lg font-semibold">{formatCurrency(cashBalance)}</div>
+              <div className="text-lg font-semibold">
+                {formatCurrency(portfolio?.cashBalance || 0)}
+              </div>
             </div>
             <div>
               <div className="text-xs text-gray-500">Total Value</div>
-              <div className="text-lg font-semibold">{formatCurrency(totalValue)}</div>
+              <div className="text-lg font-semibold">
+                {formatCurrency(portfolio?.totalValue || 0)}
+              </div>
             </div>
             <div className="col-span-2">
               <div className="text-xs text-gray-500">P&L</div>
-              <div className={`text-sm font-medium ${pnlPct >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                {pnlPct >= 0 ? "▲" : "▼"} {Math.abs(pnlPct || 0).toFixed(2)}%
+              <div
+                className={`text-sm font-medium ${
+                  portfolio?.pnlPct >= 0 ? "text-emerald-600" : "text-rose-600"
+                }`}
+              >
+                {portfolio?.pnlPct >= 0 ? "▲" : "▼"}{" "}
+                {Math.abs(portfolio?.pnlPct || 0).toFixed(2)}%
               </div>
             </div>
           </div>
